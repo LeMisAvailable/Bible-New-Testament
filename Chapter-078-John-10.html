@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>John 10 - The Good Shepherd</title>
+    <style>
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
+        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
+        a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
+        a.back-link:hover { text-decoration: underline; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; transition: transform 0.2s, box-shadow 0.2s; }
+        .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(139,0,0,0.4); }
+        .copy-btn:active { transform: translateY(0); }
+        .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .suno-format { display: none; }
+    </style>
+</head>
+<body>
+    <div class="song-container">
+        <a href="index.html" class="back-link">Back to All Songs</a>
+
+        <h1>The Good Shepherd</h1>
+        <p class="subtitle">John Chapter 10</p>
+        <p class="duration">Duration: ~2 minutes | Style: Devotional Ballad</p>
+
+        <h2>[Verse 1]</h2>
+        <div class="verse">
+The sheep know well their Shepherd's voice,<br>
+They follow Him, it is their choice,<br>
+Through the gate they safely go,<br>
+No stranger's call will lead them low.<br>
+I am the door, Jesus declared,<br>
+Through Me alone, salvation shared.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+I am the Good Shepherd, hear My call,<br>
+I lay My life down for you all,<br>
+No one takes it from My hand,<br>
+Safe forever, by grace you stand.
+        </div>
+
+        <h2>[Verse 2]</h2>
+        <div class="verse">
+The hired hand will run away,<br>
+When wolves attack, he will not stay,<br>
+But I will never leave My own,<br>
+My sheep are known, their names are sown.<br>
+Other sheep I have as well,<br>
+One flock, one Shepherd, grace will tell.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+I am the Good Shepherd, hear My call,<br>
+I lay My life down for you all,<br>
+No one takes it from My hand,<br>
+Safe forever, by grace you stand.
+        </div>
+
+        <h2>[Bridge]</h2>
+        <div class="bridge">
+No one can snatch them from My hand,<br>
+The Father's power helps them stand,<br>
+I and the Father, We are one,<br>
+The work of love is never done.
+        </div>
+
+        <h2>[Outro]</h2>
+        <div class="finale">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+
+        <div class="suno-format" id="suno-text">
+(Devotional Ballad, Emotional, Orchestral, Reverent)
+
+[Verse 1]
+The sheep know well their Shepherd's voice,
+They follow Him, it is their choice,
+Through the gate they safely go,
+No stranger's call will lead them low.
+I am the door, Jesus declared,
+Through Me alone, salvation shared.
+
+[Chorus]
+I am the Good Shepherd, hear My call,
+I lay My life down for you all,
+No one takes it from My hand,
+Safe forever, by grace you stand.
+
+[Verse 2]
+The hired hand will run away,
+When wolves attack, he will not stay,
+But I will never leave My own,
+My sheep are known, their names are sown.
+Other sheep I have as well,
+One flock, one Shepherd, grace will tell.
+
+[Chorus]
+I am the Good Shepherd, hear My call,
+I lay My life down for you all,
+No one takes it from My hand,
+Safe forever, by grace you stand.
+
+[Bridge]
+No one can snatch them from My hand,
+The Father's power helps them stand,
+I and the Father, We are one,
+The work of love is never done.
+
+[Outro]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+        </div>
+    </div>
+
+    <script>
+        function copySunoFormat() {
+            const text = document.getElementById('suno-text').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

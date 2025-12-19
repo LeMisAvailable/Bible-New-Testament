@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark 16 - The Resurrection</title>
+    <style>
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
+        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
+        a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
+        .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .suno-format { display: none; }
+    </style>
+</head>
+<body>
+    <div class="song-container">
+        <a href="index.html" class="back-link">Back to All Songs</a>
+        <h1>The Resurrection</h1>
+        <p class="subtitle">Mark Chapter 16</p>
+        <p class="duration">Duration: ~2 minutes | Style: Triumphant Celebration</p>
+
+        <h2>[Verse 1]</h2>
+        <div class="verse">
+At dawn the women came with spice,<br>
+Their hearts prepared for sacrifice,<br>
+But who will roll the stone away?<br>
+They wondered on that holy day.<br>
+An angel dressed in white was there,<br>
+"He is not here—He's risen! Declare!"
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+He is risen! He's alive!<br>
+Death could not hold Him, we survive,<br>
+Go and tell the world this news,<br>
+Christ has conquered—we can't lose,<br>
+He is risen! He's alive!
+        </div>
+
+        <h2>[Verse 2]</h2>
+        <div class="verse">
+To Mary Magdalene He first appeared,<br>
+She ran to tell, though some hearts feared,<br>
+Then to two walking on the road,<br>
+And to the eleven where they abode.<br>
+"Go into all the world," He said,<br>
+"Preach the gospel, raise the dead."
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+He is risen! He's alive!<br>
+Death could not hold Him, we survive,<br>
+Go and tell the world this news,<br>
+Christ has conquered—we can't lose,<br>
+He is risen! He's alive!
+        </div>
+
+        <h2>[Bridge]</h2>
+        <div class="bridge">
+Signs will follow those who believe,<br>
+In His name, the sick receive,<br>
+He ascended to His throne on high,<br>
+Now seated at the Father's side.
+        </div>
+
+        <h2>[Outro]</h2>
+        <div class="finale">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+        <div class="suno-format" id="suno-text">
+(Triumphant Celebration, Joyful, Powerful, Reverent)
+
+[Verse 1]
+At dawn the women came with spice,
+Their hearts prepared for sacrifice,
+But who will roll the stone away?
+They wondered on that holy day.
+An angel dressed in white was there,
+"He is not here—He's risen! Declare!"
+
+[Chorus]
+He is risen! He's alive!
+Death could not hold Him, we survive,
+Go and tell the world this news,
+Christ has conquered—we can't lose,
+He is risen! He's alive!
+
+[Verse 2]
+To Mary Magdalene He first appeared,
+She ran to tell, though some hearts feared,
+Then to two walking on the road,
+And to the eleven where they abode.
+"Go into all the world," He said,
+"Preach the gospel, raise the dead."
+
+[Chorus]
+He is risen! He's alive!
+Death could not hold Him, we survive,
+Go and tell the world this news,
+Christ has conquered—we can't lose,
+He is risen! He's alive!
+
+[Bridge]
+Signs will follow those who believe,
+In His name, the sick receive,
+He ascended to His throne on high,
+Now seated at the Father's side.
+
+[Outro]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+        </div>
+    </div>
+    <script>
+        function copySunoFormat() {
+            const text = document.getElementById('suno-text').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

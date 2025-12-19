@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark 4 - Parables and Power</title>
+    <style>
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
+        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
+        a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
+        .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .suno-format { display: none; }
+    </style>
+</head>
+<body>
+    <div class="song-container">
+        <a href="index.html" class="back-link">Back to All Songs</a>
+        <h1>Parables and Power</h1>
+        <p class="subtitle">Mark Chapter 4</p>
+        <p class="duration">Duration: ~2 minutes | Style: Folk Storytelling</p>
+
+        <h2>[Verse 1]</h2>
+        <div class="verse">
+By the lake, He taught from a boat,<br>
+Parables of seeds and where they'd float,<br>
+Some on the path, the birds ate them quick,<br>
+Some on rocks where roots couldn't stick.<br>
+Thorns choked others, worries took hold,<br>
+But good soil produced thirty, sixty, hundredfold.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Listen carefully, if you have ears to hear,<br>
+The kingdom of God is growing near,<br>
+Like a seed that grows while the farmer sleeps,<br>
+The harvest is coming—the Lord reaps.
+        </div>
+
+        <h2>[Verse 2]</h2>
+        <div class="verse">
+A lamp isn't hidden under a bowl,<br>
+It's set on a stand to light every soul,<br>
+With the measure you use, it will be measured to you,<br>
+The more you give, the more comes through.<br>
+The mustard seed, smallest of all,<br>
+Becomes the greatest, standing tall.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Listen carefully, if you have ears to hear,<br>
+The kingdom of God is growing near,<br>
+Like a seed that grows while the farmer sleeps,<br>
+The harvest is coming—the Lord reaps.
+        </div>
+
+        <h2>[Bridge]</h2>
+        <div class="bridge">
+A furious storm rose on the lake that night,<br>
+Disciples panicked with all their might,<br>
+"Teacher, don't You care if we drown?"<br>
+He stood and rebuked—the wind calmed down.
+        </div>
+
+        <h2>[Outro]</h2>
+        <div class="finale">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+        <div class="suno-format" id="suno-text">
+(Folk Storytelling, Acoustic, Warm, Reverent)
+
+[Verse 1]
+By the lake, He taught from a boat,
+Parables of seeds and where they'd float,
+Some on the path, the birds ate them quick,
+Some on rocks where roots couldn't stick.
+Thorns choked others, worries took hold,
+But good soil produced thirty, sixty, hundredfold.
+
+[Chorus]
+Listen carefully, if you have ears to hear,
+The kingdom of God is growing near,
+Like a seed that grows while the farmer sleeps,
+The harvest is coming—the Lord reaps.
+
+[Verse 2]
+A lamp isn't hidden under a bowl,
+It's set on a stand to light every soul,
+With the measure you use, it will be measured to you,
+The more you give, the more comes through.
+The mustard seed, smallest of all,
+Becomes the greatest, standing tall.
+
+[Chorus]
+Listen carefully, if you have ears to hear,
+The kingdom of God is growing near,
+Like a seed that grows while the farmer sleeps,
+The harvest is coming—the Lord reaps.
+
+[Bridge]
+A furious storm rose on the lake that night,
+Disciples panicked with all their might,
+"Teacher, don't You care if we drown?"
+He stood and rebuked—the wind calmed down.
+
+[Outro]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+        </div>
+    </div>
+    <script>
+        function copySunoFormat() {
+            const text = document.getElementById('suno-text').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

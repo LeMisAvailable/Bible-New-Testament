@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark 6 - Prophet Without Honor</title>
+    <style>
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
+        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
+        a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
+        .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .suno-format { display: none; }
+    </style>
+</head>
+<body>
+    <div class="song-container">
+        <a href="index.html" class="back-link">Back to All Songs</a>
+        <h1>Prophet Without Honor</h1>
+        <p class="subtitle">Mark Chapter 6</p>
+        <p class="duration">Duration: ~2 minutes | Style: Reflective Indie</p>
+
+        <h2>[Verse 1]</h2>
+        <div class="verse">
+In His hometown, Jesus began to teach,<br>
+But the people doubted—He couldn't reach,<br>
+"Isn't this the carpenter's son we know?"<br>
+A prophet without honor, faith running low.<br>
+He sent the Twelve with power to heal,<br>
+Traveling light, making the kingdom real.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Take nothing but a staff for the road,<br>
+Trust the Father to carry your load,<br>
+Shake the dust when they turn you away,<br>
+Keep moving forward, keep faith today.
+        </div>
+
+        <h2>[Verse 2]</h2>
+        <div class="verse">
+Herod heard of wonders far and wide,<br>
+Guilty conscience couldn't hide inside,<br>
+John the Baptist, silenced by the sword,<br>
+A righteous voice that Herod ignored.<br>
+But the truth lives on, it cannot die,<br>
+Even when prophets say goodbye.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Take nothing but a staff for the road,<br>
+Trust the Father to carry your load,<br>
+Shake the dust when they turn you away,<br>
+Keep moving forward, keep faith today.
+        </div>
+
+        <h2>[Bridge]</h2>
+        <div class="bridge">
+Five thousand fed from a basket small,<br>
+Five loaves, two fish—He provided for all,<br>
+Walking on water in the fourth watch of night,<br>
+"Take courage, it is I"—everything's alright.
+        </div>
+
+        <h2>[Outro]</h2>
+        <div class="finale">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+        <div class="suno-format" id="suno-text">
+(Reflective Indie, Acoustic, Thoughtful, Reverent)
+
+[Verse 1]
+In His hometown, Jesus began to teach,
+But the people doubted—He couldn't reach,
+"Isn't this the carpenter's son we know?"
+A prophet without honor, faith running low.
+He sent the Twelve with power to heal,
+Traveling light, making the kingdom real.
+
+[Chorus]
+Take nothing but a staff for the road,
+Trust the Father to carry your load,
+Shake the dust when they turn you away,
+Keep moving forward, keep faith today.
+
+[Verse 2]
+Herod heard of wonders far and wide,
+Guilty conscience couldn't hide inside,
+John the Baptist, silenced by the sword,
+A righteous voice that Herod ignored.
+But the truth lives on, it cannot die,
+Even when prophets say goodbye.
+
+[Chorus]
+Take nothing but a staff for the road,
+Trust the Father to carry your load,
+Shake the dust when they turn you away,
+Keep moving forward, keep faith today.
+
+[Bridge]
+Five thousand fed from a basket small,
+Five loaves, two fish—He provided for all,
+Walking on water in the fourth watch of night,
+"Take courage, it is I"—everything's alright.
+
+[Outro]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+        </div>
+    </div>
+    <script>
+        function copySunoFormat() {
+            const text = document.getElementById('suno-text').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
