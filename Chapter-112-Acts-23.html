@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acts 23 - The Plot Unveiled</title>
+    <style>
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
+        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
+        a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
+        a.back-link:hover { text-decoration: underline; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; transition: transform 0.2s, box-shadow 0.2s; }
+        .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(139,0,0,0.4); }
+        .copy-btn:active { transform: translateY(0); }
+        .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .suno-format { display: none; }
+    </style>
+</head>
+<body>
+    <div class="song-container">
+        <a href="index.html" class="back-link">Back to All Songs</a>
+
+        <h1>The Plot Unveiled</h1>
+        <p class="subtitle">Acts Chapter 23</p>
+        <p class="duration">Duration: ~2 minutes | Style: Devotional Ballad</p>
+
+        <h2>[Verse 1]</h2>
+        <div class="verse">
+Before the council Paul stood unafraid,<br>
+With conscience clear, his defense was made,<br>
+The high priest ordered him to be struck,<br>
+But Paul spoke back with righteous pluck.<br>
+Sadducees and Pharisees began to fight,<br>
+Division rose into the night.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Take courage, for the Lord stands near,<br>
+You must testify, you shall not fear,<br>
+As you have witnessed here for Me,<br>
+In Rome you'll tell what you have seen.
+        </div>
+
+        <h2>[Verse 2]</h2>
+        <div class="verse">
+Forty men made an oath that day,<br>
+Neither food nor drink until they'd slay,<br>
+But Paul's nephew heard their secret scheme,<br>
+And ran to tell of their deadly dream.<br>
+The commander moved at dead of night,<br>
+Four hundred soldiers kept Paul in sight.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Take courage, for the Lord stands near,<br>
+You must testify, you shall not fear,<br>
+As you have witnessed here for Me,<br>
+In Rome you'll tell what you have seen.
+        </div>
+
+        <h2>[Bridge]</h2>
+        <div class="bridge">
+To Caesarea through the dark they rode,<br>
+Protected on that dangerous road,<br>
+God's plan unfolds through human hands,<br>
+His purpose none can countermand.
+        </div>
+
+        <h2>[Outro]</h2>
+        <div class="finale">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+
+        <div class="suno-format" id="suno-text">
+(Devotional Ballad, Emotional, Orchestral, Reverent)
+
+[Verse 1]
+Before the council Paul stood unafraid,
+With conscience clear, his defense was made,
+The high priest ordered him to be struck,
+But Paul spoke back with righteous pluck.
+Sadducees and Pharisees began to fight,
+Division rose into the night.
+
+[Chorus]
+Take courage, for the Lord stands near,
+You must testify, you shall not fear,
+As you have witnessed here for Me,
+In Rome you'll tell what you have seen.
+
+[Verse 2]
+Forty men made an oath that day,
+Neither food nor drink until they'd slay,
+But Paul's nephew heard their secret scheme,
+And ran to tell of their deadly dream.
+The commander moved at dead of night,
+Four hundred soldiers kept Paul in sight.
+
+[Chorus]
+Take courage, for the Lord stands near,
+You must testify, you shall not fear,
+As you have witnessed here for Me,
+In Rome you'll tell what you have seen.
+
+[Bridge]
+To Caesarea through the dark they rode,
+Protected on that dangerous road,
+God's plan unfolds through human hands,
+His purpose none can countermand.
+
+[Outro]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+        </div>
+    </div>
+
+    <script>
+        function copySunoFormat() {
+            const text = document.getElementById('suno-text').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
