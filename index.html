@@ -168,6 +168,12 @@
             color: white;
             border-left-color: #ffffff;
         }
+        .sidebar-chapter-link.active {
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+            border-left-color: #d4af37;
+            font-weight: bold;
+        }
         .sidebar-chapter-link.intro-link {
             color: #ffffff;
             font-weight: bold;
@@ -244,6 +250,29 @@
         }
         .sidebar::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Chapter Frame Styles */
+        .chapter-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+        .chapter-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        @media (max-width: 768px) {
+            .chapter-frame {
+                padding-top: 60px;
+            }
+            .chapter-frame iframe {
+                height: calc(100vh - 60px);
+            }
         }
     </style>
 </head>
@@ -721,8 +750,13 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="page-wrapper">
+    <!-- Chapter Content Frame (hidden by default, shown when ?chapter= is present) -->
+    <div id="chapterFrame" class="chapter-frame" style="display: none;">
+        <iframe id="chapterIframe" src="" frameborder="0"></iframe>
+    </div>
+
+    <!-- Main Content (shown by default, hidden when ?chapter= is present) -->
+    <div class="page-wrapper" id="mainContent">
         <div class="main-container">
             <h1>New Testament Bible Songs</h1>
             <p class="subtitle">Expanded Edition: 260 Chapters Set to Song for Teens</p>
@@ -1268,6 +1302,67 @@
         const hamburger = document.getElementById('hamburgerBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
+        const chapterFrame = document.getElementById('chapterFrame');
+        const chapterIframe = document.getElementById('chapterIframe');
+        const mainContent = document.getElementById('mainContent');
+
+        // Check for chapter parameter on page load
+        function loadChapterFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const chapter = urlParams.get('chapter');
+
+            if (chapter && chapter !== 'index.html') {
+                // Show chapter in iframe
+                chapterFrame.style.display = 'block';
+                mainContent.style.display = 'none';
+                chapterIframe.src = chapter;
+
+                // Highlight active chapter in sidebar
+                document.querySelectorAll('.sidebar-chapter-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(chapter)) {
+                        link.classList.add('active');
+                        // Expand parent book
+                        const parentBook = link.closest('.sidebar-book');
+                        if (parentBook) parentBook.classList.add('expanded');
+                    }
+                });
+            } else {
+                // Show main content
+                chapterFrame.style.display = 'none';
+                mainContent.style.display = 'block';
+            }
+        }
+
+        // Convert all sidebar links to use query parameters
+        function updateSidebarLinks() {
+            document.querySelectorAll('.sidebar-chapter-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href !== 'index.html' && !href.startsWith('?') && !href.startsWith('index.html?')) {
+                    link.setAttribute('href', 'index.html?chapter=' + href);
+                } else if (href === 'index.html') {
+                    // Introduction link - keep as is or use index without parameter
+                    link.setAttribute('href', 'index.html');
+                }
+            });
+
+            // Also update song-grid links in main content
+            document.querySelectorAll('.song-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && !href.startsWith('?') && !href.startsWith('index.html?')) {
+                    link.setAttribute('href', 'index.html?chapter=' + href);
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSidebarLinks();
+            loadChapterFromURL();
+        });
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', loadChapterFromURL);
 
         function toggleSidebar() {
             hamburger.classList.toggle('active');
