@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dare To Stand Alone - Daniel's Story</title>
+    <style>
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
+        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
+        .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .suno-format { display: none; }
+    </style>
+</head>
+<body>
+    <div class="song-container">
+        <div class="video-container" style="text-align: center; margin-bottom: 20px;">
+            <iframe id="chapter-video" width="100%" height="250" src="" frameborder="0" allowfullscreen style="max-width: 500px; border-radius: 10px;"></iframe>
+        </div>
+        <script>
+        (function() {
+            const chapterName = window.location.pathname.split('/').pop().replace('.html', '');
+            fetch('videolinks.json').then(response => response.json()).then(data => {
+                document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/' + (data[chapterName] || '9jo51nJrO0k');
+            }).catch(() => { document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/9jo51nJrO0k'; });
+        })();
+        </script>
+
+        <h1>Dare To Stand Alone</h1>
+        <p class="subtitle">Daniel - Faithful in Babylon - Book of Daniel</p>
+        <p class="duration">Duration: ~3 minutes | Style: Bold Pop Rock</p>
+
+        <h2>[Verse 1]</h2>
+        <div class="verse">
+They took me from Jerusalem,<br>
+When I was just a boy,<br>
+They changed my name, they changed my food,<br>
+Tried to steal my joy.<br>
+But I resolved within my heart,<br>
+I would not defile myself.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <h2>[Verse 2]</h2>
+        <div class="verse">
+When they made a law against my prayers,<br>
+I opened my window just the same,<br>
+Three times a day toward Jerusalem,<br>
+I called upon God's name.<br>
+They threw me to the lions,<br>
+But God shut their mouths that night.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <h2>[Bridge]</h2>
+        <div class="bridge">
+Dare to stand alone,<br>
+When everyone else bows down,<br>
+God will be with you then,<br>
+He is always with us!
+        </div>
+
+        <h2>[Outro]</h2>
+        <div class="finale">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+        <div class="suno-format" id="suno-text">
+(Bold Pop Rock, Confident, Electric Guitar and Drums, Reverent)
+
+[Verse 1]
+They took me from Jerusalem,
+When I was just a boy,
+They changed my name, they changed my food,
+Tried to steal my joy.
+But I resolved within my heart,
+I would not defile myself.
+
+[Chorus]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+
+[Verse 2]
+When they made a law against my prayers,
+I opened my window just the same,
+Three times a day toward Jerusalem,
+I called upon God's name.
+They threw me to the lions,
+But God shut their mouths that night.
+
+[Chorus]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+
+[Bridge]
+Dare to stand alone,
+When everyone else bows down,
+God will be with you then,
+He is always with us!
+
+[Outro]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+        </div>
+    </div>
+    <script>
+        function copySunoFormat() {
+            const text = document.getElementById('suno-text').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!'; btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

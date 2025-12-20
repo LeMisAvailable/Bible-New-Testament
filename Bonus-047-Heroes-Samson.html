@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strength And Weakness - Samson's Story</title>
+    <style>
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
+        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
+        .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .suno-format { display: none; }
+    </style>
+</head>
+<body>
+    <div class="song-container">
+        <div class="video-container" style="text-align: center; margin-bottom: 20px;">
+            <iframe id="chapter-video" width="100%" height="250" src="" frameborder="0" allowfullscreen style="max-width: 500px; border-radius: 10px;"></iframe>
+        </div>
+        <script>
+        (function() {
+            const chapterName = window.location.pathname.split('/').pop().replace('.html', '');
+            fetch('videolinks.json').then(response => response.json()).then(data => {
+                document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/' + (data[chapterName] || '9jo51nJrO0k');
+            }).catch(() => { document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/9jo51nJrO0k'; });
+        })();
+        </script>
+
+        <h1>Strength And Weakness</h1>
+        <p class="subtitle">Samson - The Strongest Man - Judges 13-16</p>
+        <p class="duration">Duration: ~3 minutes | Style: Hard Rock</p>
+
+        <h2>[Verse 1]</h2>
+        <div class="verse">
+Born for a purpose, set apart,<br>
+The Spirit rushed upon my frame,<br>
+I killed a lion with my hands,<br>
+The Philistines feared my name.<br>
+I tore the gates of Gaza off,<br>
+But my heart was my weakness still.
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <h2>[Verse 2]</h2>
+        <div class="verse">
+She cut my hair while I was sleeping,<br>
+The strength drained from my bones,<br>
+They gouged my eyes, they chained me up,<br>
+Grinding grain all alone.<br>
+But hair grows back, and so does grace,<br>
+"Lord, remember me one more time."
+        </div>
+
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <h2>[Bridge]</h2>
+        <div class="bridge">
+Strength and weakness, wrapped in one,<br>
+I pushed the pillars, God's design,<br>
+Even when you've failed the worst,<br>
+God can use your broken frame.
+        </div>
+
+        <h2>[Outro]</h2>
+        <div class="finale">
+When fearful thoughts are intertwined,<br>
+You calm the storm inside my mind.<br>
+Jesus, though I cannot see Your hand,<br>
+Your faithful heart I understand.
+        </div>
+
+        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+        <div class="suno-format" id="suno-text">
+(Hard Rock, Powerful, Heavy Guitars and Drums, Reverent)
+
+[Verse 1]
+Born for a purpose, set apart,
+The Spirit rushed upon my frame,
+I killed a lion with my hands,
+The Philistines feared my name.
+I tore the gates of Gaza off,
+But my heart was my weakness still.
+
+[Chorus]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+
+[Verse 2]
+She cut my hair while I was sleeping,
+The strength drained from my bones,
+They gouged my eyes, they chained me up,
+Grinding grain all alone.
+But hair grows back, and so does grace,
+"Lord, remember me one more time."
+
+[Chorus]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+
+[Bridge]
+Strength and weakness, wrapped in one,
+I pushed the pillars, God's design,
+Even when you've failed the worst,
+God can use your broken frame.
+
+[Outro]
+When fearful thoughts are intertwined,
+You calm the storm inside my mind.
+Jesus, though I cannot see Your hand,
+Your faithful heart I understand.
+        </div>
+    </div>
+    <script>
+        function copySunoFormat() {
+            const text = document.getElementById('suno-text').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!'; btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
