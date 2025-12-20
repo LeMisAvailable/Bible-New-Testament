@@ -1363,22 +1363,53 @@
                 }
             });
 
-            // Handle Introduction link - make it show main content without iframe
-            document.querySelectorAll('.sidebar-chapter-link.intro-link').forEach(link => {
+            // Handle all chapter link clicks - prevent page reload to keep sidebar scroll position
+            document.querySelectorAll('.sidebar-chapter-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    // Hide chapter frame, show main content
-                    chapterFrame.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    document.body.classList.remove('chapter-view');
-                    chapterFrame.style.left = '0';
-                    chapterFrame.style.width = '100%';
-                    // Update URL without reload
-                    window.history.pushState({}, '', 'index.html');
-                    // Remove active class from all chapter links
+
+                    const href = link.getAttribute('href');
+                    const isIntro = link.classList.contains('intro-link');
+
+                    if (isIntro) {
+                        // Hide chapter frame, show main content
+                        chapterFrame.style.display = 'none';
+                        mainContent.style.display = 'block';
+                        document.body.classList.remove('chapter-view');
+                        chapterFrame.style.left = '0';
+                        chapterFrame.style.width = '100%';
+                        // Update URL without reload
+                        window.history.pushState({}, '', 'index.html');
+                    } else {
+                        // Extract chapter name from href (e.g., "index.html?chapter=Chapter-001-Matthew-01")
+                        const urlParams = new URLSearchParams(href.split('?')[1]);
+                        const chapter = urlParams.get('chapter');
+
+                        if (chapter) {
+                            const chapterFile = chapter + '.html';
+
+                            // Show chapter in iframe
+                            chapterFrame.style.display = 'block';
+                            mainContent.style.display = 'none';
+                            chapterIframe.src = chapterFile;
+                            document.body.classList.add('chapter-view');
+
+                            // Update URL without reload
+                            window.history.pushState({}, '', 'index.html?chapter=' + chapter);
+
+                            // Position iframe for desktop with sidebar open
+                            if (window.innerWidth > 768 && sidebar.classList.contains('active')) {
+                                chapterFrame.style.left = '330px';
+                                chapterFrame.style.width = 'calc(100% - 330px)';
+                            }
+                        }
+                    }
+
+                    // Remove active class from all chapter links and add to clicked one
                     document.querySelectorAll('.sidebar-chapter-link').forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
-                    // Close sidebar on mobile
+
+                    // Close sidebar on mobile only
                     if (window.innerWidth <= 768) {
                         hamburger.classList.remove('active');
                         sidebar.classList.remove('active');
@@ -1395,6 +1426,46 @@
                     const chapterName = href.replace('.html', '');
                     link.setAttribute('href', 'index.html?chapter=' + chapterName);
                 }
+
+                // Add click handler to prevent page reload
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const linkHref = link.getAttribute('href');
+                    const urlParams = new URLSearchParams(linkHref.split('?')[1]);
+                    const chapter = urlParams.get('chapter');
+
+                    if (chapter) {
+                        const chapterFile = chapter + '.html';
+
+                        // Show chapter in iframe
+                        chapterFrame.style.display = 'block';
+                        mainContent.style.display = 'none';
+                        chapterIframe.src = chapterFile;
+                        document.body.classList.add('chapter-view');
+
+                        // Update URL without reload
+                        window.history.pushState({}, '', 'index.html?chapter=' + chapter);
+
+                        // Open sidebar on desktop
+                        if (window.innerWidth > 768) {
+                            hamburger.classList.add('active');
+                            sidebar.classList.add('active');
+                            overlay.classList.add('active');
+                            chapterFrame.style.left = '330px';
+                            chapterFrame.style.width = 'calc(100% - 330px)';
+                        }
+
+                        // Update active state in sidebar
+                        document.querySelectorAll('.sidebar-chapter-link').forEach(l => {
+                            l.classList.remove('active');
+                            if (l.getAttribute('href').includes(chapter)) {
+                                l.classList.add('active');
+                                const parentBook = l.closest('.sidebar-book');
+                                if (parentBook) parentBook.classList.add('expanded');
+                            }
+                        });
+                    }
+                });
             });
         }
 
