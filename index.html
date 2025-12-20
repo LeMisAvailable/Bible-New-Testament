@@ -1360,10 +1360,31 @@
                     // Remove .html extension from URL parameter
                     const chapterName = href.replace('.html', '');
                     link.setAttribute('href', 'index.html?chapter=' + chapterName);
-                } else if (href === 'index.html') {
-                    // Introduction link - keep as is
-                    link.setAttribute('href', 'index.html');
                 }
+            });
+
+            // Handle Introduction link - make it show main content without iframe
+            document.querySelectorAll('.sidebar-chapter-link.intro-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Hide chapter frame, show main content
+                    chapterFrame.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    document.body.classList.remove('chapter-view');
+                    chapterFrame.style.left = '0';
+                    chapterFrame.style.width = '100%';
+                    // Update URL without reload
+                    window.history.pushState({}, '', 'index.html');
+                    // Remove active class from all chapter links
+                    document.querySelectorAll('.sidebar-chapter-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768) {
+                        hamburger.classList.remove('active');
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                    }
+                });
             });
 
             // Also update song-grid links in main content
