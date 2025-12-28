@@ -2822,10 +2822,7 @@
     <div style="height: 200px; width: 100%;"></div>
     <div style="height: 150px; width: 100%;"></div>
 
-    <!-- Hidden Audio Player for Control Bar -->
-    <audio id="audio-player"></audio>
-
-    <!-- Persistent Audio Control Bar -->
+    <!-- Persistent Audio Control Bar - UI controlled by iframe chapter pages -->
     <div id="audio-control-bar">
         <div class="acb-container">
             <div class="acb-top-row">
@@ -2847,8 +2844,8 @@
     </div>
 
     <script>
-        // Audio Control Bar for Index Page
-        const audioPlayer = document.getElementById('audio-player');
+        // Audio Control Bar for Index Page - Controlled by iframe chapter pages
+        // The parent does NOT play audio itself - it relays control bar UI from iframe
 
         function formatTime(sec) {
             if (isNaN(sec)) return '0:00';
@@ -2871,100 +2868,92 @@
             if (bar) bar.classList.remove('visible');
         }
 
-        function saveAudioState() {
-            const titleEl = document.getElementById('acb-title');
-            let audioPath = '';
-            if (audioPlayer.src && audioPlayer.src.includes('music/')) {
-                audioPath = 'music/' + audioPlayer.src.split('music/').pop();
-            }
-            const state = {
-                audioPath: audioPath,
-                currentTime: audioPlayer.currentTime,
-                isPlaying: !audioPlayer.paused && audioPath !== '',
-                isPaused: audioPlayer.paused && audioPlayer.currentTime > 0 && audioPath !== '',
-                title: titleEl ? titleEl.textContent : '',
-                chapter: '',
-                melodyIndex: -1
-            };
-            localStorage.setItem('audioState', JSON.stringify(state));
-        }
-
-        function restoreAudioState() {
-            const state = JSON.parse(localStorage.getItem('audioState') || '{}');
-            if (state.audioPath && state.audioPath.startsWith('music/') && (state.isPlaying || state.isPaused)) {
-                audioPlayer.src = state.audioPath;
-                audioPlayer.currentTime = state.currentTime || 0;
-                updateControlBarUI(state.title, state.isPlaying);
-
-                if (state.isPlaying) {
-                    audioPlayer.play().catch((e) => {
-                        console.log('Audio autoplay blocked, showing paused state');
-                        updateControlBarUI(state.title, false);
-                    });
-                }
+        function updateControlBarTime(currentTime, duration) {
+            const cur = document.getElementById('acb-current');
+            const dur = document.getElementById('acb-duration');
+            const seek = document.getElementById('acb-seek');
+            if (cur) cur.textContent = formatTime(currentTime);
+            if (dur) dur.textContent = formatTime(duration);
+            if (seek && duration) {
+                seek.value = (currentTime / duration) * 100;
             }
         }
 
+        // Forward control bar actions to iframe
         function acbTogglePlay() {
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-                updateControlBarUI(null, true);
-            } else {
-                audioPlayer.pause();
-                updateControlBarUI(null, false);
+            const iframe = document.getElementById('chapterIframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ action: 'togglePlay' }, '*');
             }
-            saveAudioState();
         }
 
         function acbStop() {
-            try {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                audioPlayer.removeAttribute('src');
-                audioPlayer.load();
-            } catch (e) {}
+            const iframe = document.getElementById('chapterIframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ action: 'stop' }, '*');
+            }
             hideControlBar();
             localStorage.removeItem('audioState');
         }
 
         function acbSkip(seconds) {
-            audioPlayer.currentTime = Math.max(0, Math.min(audioPlayer.duration || 0, audioPlayer.currentTime + seconds));
-            saveAudioState();
+            const iframe = document.getElementById('chapterIframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ action: 'skip', seconds: seconds }, '*');
+            }
         }
 
         function acbSeek(value) {
-            if (audioPlayer.duration) {
-                audioPlayer.currentTime = (value / 100) * audioPlayer.duration;
-                saveAudioState();
+            const iframe = document.getElementById('chapterIframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ action: 'seek', value: value }, '*');
             }
         }
 
-        audioPlayer.addEventListener('timeupdate', () => {
-            const cur = document.getElementById('acb-current');
-            const seek = document.getElementById('acb-seek');
-            if (cur) cur.textContent = formatTime(audioPlayer.currentTime);
-            if (seek && audioPlayer.duration) {
-                seek.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        // Listen for messages from iframe to update control bar
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            if (!data || !data.type) return;
+
+            switch (data.type) {
+                case 'audioStarted':
+                    updateControlBarUI(data.title, true);
+                    break;
+                case 'audioPaused':
+                    updateControlBarUI(null, false);
+                    break;
+                case 'audioResumed':
+                    updateControlBarUI(null, true);
+                    break;
+                case 'audioStopped':
+                    hideControlBar();
+                    break;
+                case 'audioEnded':
+                    updateControlBarUI(null, false);
+                    break;
+                case 'audioTimeUpdate':
+                    updateControlBarTime(data.currentTime, data.duration);
+                    break;
+                case 'audioStateRestored':
+                    // Iframe restored audio state - show control bar
+                    updateControlBarUI(data.title, data.isPlaying);
+                    break;
             }
         });
 
-        audioPlayer.addEventListener('loadedmetadata', () => {
-            const dur = document.getElementById('acb-duration');
-            if (dur) dur.textContent = formatTime(audioPlayer.duration);
+        // On page load, check if there's saved state and an iframe is loaded
+        // Don't auto-play on index - let iframe handle it
+        document.addEventListener('DOMContentLoaded', () => {
+            // Only show control bar if we have saved state AND a chapter is loaded
+            const state = JSON.parse(localStorage.getItem('audioState') || '{}');
+            const urlParams = new URLSearchParams(window.location.search);
+            const chapter = urlParams.get('chapter');
+
+            if (state.audioPath && state.audioPath.startsWith('music/') && chapter) {
+                // Show control bar in paused state - iframe will handle actual playback
+                updateControlBarUI(state.title, false);
+            }
         });
-
-        audioPlayer.addEventListener('ended', () => {
-            updateControlBarUI(null, false);
-            localStorage.removeItem('audioState');
-        });
-
-        audioPlayer.addEventListener('play', () => saveAudioState());
-        audioPlayer.addEventListener('pause', () => saveAudioState());
-
-        window.addEventListener('beforeunload', saveAudioState);
-
-        document.addEventListener('DOMContentLoaded', restoreAudioState);
-        if (document.readyState === 'complete') restoreAudioState();
     </script>
 </body>
 </html>
