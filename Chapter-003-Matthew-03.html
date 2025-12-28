@@ -598,6 +598,7 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
 
         
         <button class="copy-btn" onclick="copySunoFormat()">Copy Lyrics</button>
+        <button class="copy-btn" onclick="getSheetMusic()" style="margin-left: 10px; background: linear-gradient(135deg, #6b5b95 0%, #8b7cb5 100%);">Get Sheet Music</button>
 
         <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
 
@@ -631,6 +632,10 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
                     btn.classList.remove('copied');
                 }, 2000);
             });
+        }
+
+        function getSheetMusic() {
+            showAudioToast('Sheet music functionality is not yet available');
         }
     </script>
 
