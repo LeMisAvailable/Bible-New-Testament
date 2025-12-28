@@ -44,7 +44,7 @@
         <script>
         (function() {
             const chapterName = window.location.pathname.split('/').pop().replace('.html', '');
-            fetch('setup/videolinks.json')
+            fetch('setup/videolinks.json?t=' + Date.now())
                 .then(response => response.json())
                 .then(data => {
                     const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
@@ -84,19 +84,24 @@
         <p class="duration">Duration: ~3 minutes | Style: Upbeat Contemporary</p>
 
         <div class="listen-btn-container">
-            <button class="listen-btn" onclick="playAudio()">
-                <svg viewBox="0 0 24 24" id="play-icon"><path d="M8 5v14l11-7z"/></svg>
-                <span id="listen-text">Listen Now</span>
+            <button class="listen-btn" id="listen-btn-1" onclick="playAudio(0)">
+                <svg viewBox="0 0 24 24" id="play-icon-1"><path d="M8 5v14l11-7z"/></svg>
+                <span id="listen-text-1">Listen Now (Common Melody)</span>
+            </button>
+            <button class="listen-btn" id="listen-btn-2" onclick="playAudio(1)">
+                <svg viewBox="0 0 24 24" id="play-icon-2"><path d="M8 5v14l11-7z"/></svg>
+                <span id="listen-text-2">Listen Now (Unique Melody)</span>
             </button>
             <audio id="audio-player"></audio>
         </div>
         <div id="audio-toast">We will make this audio available soon</div>
         <script>
-        let isPlaying = false;
+        let currentPlaying = -1;
         const audioPlayer = document.getElementById('audio-player');
-        const listenBtn = document.querySelector('.listen-btn');
-        const playIcon = document.getElementById('play-icon');
-        const listenText = document.getElementById('listen-text');
+        const buttons = [
+            { btn: document.getElementById('listen-btn-1'), icon: document.getElementById('play-icon-1'), text: document.getElementById('listen-text-1'), label: 'Listen Now (Common Melody)' },
+            { btn: document.getElementById('listen-btn-2'), icon: document.getElementById('play-icon-2'), text: document.getElementById('listen-text-2'), label: 'Listen Now (Unique Melody)' }
+        ];
 
         function getChapterName() {
             return window.location.pathname.split('/').pop().replace('.html', '');
@@ -108,31 +113,47 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        async function playAudio() {
-            if (isPlaying) {
+        function resetButton(index) {
+            buttons[index].btn.classList.remove('playing');
+            buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            buttons[index].text.textContent = buttons[index].label;
+        }
+
+        function resetAllButtons() {
+            buttons.forEach((b, i) => resetButton(i));
+        }
+
+        async function playAudio(index) {
+            if (currentPlaying === index) {
                 audioPlayer.pause();
-                isPlaying = false;
-                listenBtn.classList.remove('playing');
-                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-                listenText.textContent = 'Listen Now';
+                currentPlaying = -1;
+                resetButton(index);
                 return;
             }
+            if (currentPlaying !== -1) {
+                audioPlayer.pause();
+                resetButton(currentPlaying);
+            }
             try {
-                const response = await fetch('setup/audiolinks.json');
+                const response = await fetch('setup/audiolinks.json?t=' + Date.now());
                 const audiolinks = await response.json();
                 const chapterName = getChapterName();
-                const audioFile = audiolinks[chapterName];
-                if (audioFile && audioFile !== 'sample-audio-file.wav') {
-                    const audioPath = 'music/' + audioFile;
-                    const checkResponse = await fetch(audioPath, { method: 'HEAD' });
-                    if (checkResponse.ok) {
-                        audioPlayer.src = audioPath;
-                        audioPlayer.play();
-                        isPlaying = true;
-                        listenBtn.classList.add('playing');
-                        playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                        listenText.textContent = 'Pause';
-                        return;
+                const audioFiles = audiolinks[chapterName];
+                if (audioFiles && audioFiles !== 'sample-audio-file.wav sample-audio-file.wav') {
+                    const files = audioFiles.split(' ');
+                    const audioFile = files[index] || files[0];
+                    if (audioFile && audioFile !== 'sample-audio-file.wav') {
+                        const audioPath = 'music/' + audioFile;
+                        const checkResponse = await fetch(audioPath, { method: 'HEAD' });
+                        if (checkResponse.ok) {
+                            audioPlayer.src = audioPath;
+                            audioPlayer.play();
+                            currentPlaying = index;
+                            buttons[index].btn.classList.add('playing');
+                            buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                            buttons[index].text.textContent = 'Pause';
+                            return;
+                        }
                     }
                 }
                 showAudioToast();
@@ -140,10 +161,8 @@
         }
 
         audioPlayer.addEventListener('ended', () => {
-            isPlaying = false;
-            listenBtn.classList.remove('playing');
-            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-            listenText.textContent = 'Listen Now';
+            if (currentPlaying !== -1) resetButton(currentPlaying);
+            currentPlaying = -1;
         });
         </script>
 
