@@ -323,7 +323,7 @@
                     if (buttons[currentPlaying] && buttons[currentPlaying].btn) {
                         buttons[currentPlaying].btn.classList.add('playing');
                         buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                        buttons[currentPlaying].text.textContent = 'Pause';
+                        buttons[currentPlaying].text.textContent = buttons[currentPlaying].label.replace('Listen Now', 'Pause Now');
                     }
                 }
             }
@@ -340,7 +340,7 @@
                     audioPlayer.play();
                     buttons[index].btn.classList.add('playing');
                     buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                    buttons[index].text.textContent = 'Pause';
+                    buttons[index].text.textContent = buttons[index].label.replace('Listen Now', 'Pause Now');
                     updateControlBarUI(null, true);
                     notifyParent('audioResumed');
                 } else {
@@ -377,7 +377,7 @@
 
                             buttons[index].btn.classList.add('playing');
                             buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                            buttons[index].text.textContent = 'Pause';
+                            buttons[index].text.textContent = buttons[index].label.replace('Listen Now', 'Pause Now');
 
                             const melodyType = index === 0 ? 'Common' : 'Unique';
                             const title = chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')';
@@ -401,7 +401,7 @@
                 if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
                     buttons[currentPlaying].btn.classList.add('playing');
                     buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                    buttons[currentPlaying].text.textContent = 'Pause';
+                    buttons[currentPlaying].text.textContent = buttons[currentPlaying].label.replace('Listen Now', 'Pause Now');
                 }
             } else {
                 audioPlayer.pause();
