@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ephesians 4 - Unity in the Body</title>
     <style>
-        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
-        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; padding-bottom: calc(100px + env(safe-area-inset-bottom, 20px)); background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; -webkit-overflow-scrolling: touch; }
+        .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; padding-bottom: 50px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
         h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
         h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
@@ -14,6 +14,7 @@
         .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
         .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
         .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .scripture-ref { text-align: center; color: #8b0000; font-size: 0.95em; margin-bottom: 10px; font-weight: bold; }
         .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
         a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
         a.back-link:hover { text-decoration: underline; }
@@ -22,12 +23,18 @@
         .copy-btn:active { transform: translateY(0); }
         .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
         .suno-format { display: none; }
+        .carousel-item { display: none; }
+        .carousel-item.active { display: block; }
+        .intro { background: linear-gradient(135deg, #2d5016 0%, #4a7c23 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
     </style>
 </head>
 <body>
     <div class="song-container">
         <div class="video-container" style="text-align: center; margin-bottom: 20px;">
-            <iframe id="chapter-video" width="100%" height="250" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 500px; border-radius: 10px;"></iframe>
+            <div id="top-videos" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <iframe id="chapter-video-1" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+                <iframe id="chapter-video-2" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+            </div>
         </div>
 
         <script>
@@ -36,60 +43,93 @@
             fetch('videolinks.json')
                 .then(response => response.json())
                 .then(data => {
-                    const videoId = data[chapterName] || '9jo51nJrO0k';
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/' + videoId;
+                    const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
+                    // Top 2 videos
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/' + (videoIds[0] || '9jo51nJrO0k');
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/' + (videoIds[1] || videoIds[0] || '9jo51nJrO0k');
+                    // Bottom carousel
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = videoIds.map((id, i) =>
+                            '<div class="carousel-item' + (i === 0 ? ' active' : '') + '">' +
+                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>' +
+                            '</div>'
+                        ).join('');
+                        // Update video count
+                        document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        // Initialize carousel display
+                        document.addEventListener('DOMContentLoaded', () => { if (typeof showSlide === 'function') showSlide(0); });
+                        if (document.readyState === 'complete') { setTimeout(() => { if (typeof showSlide === 'function') showSlide(0); }, 100); }
+                    }
                 })
                 .catch(() => {
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    // Fallback carousel with 2 videos
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = '<div class="carousel-item active"><iframe width="100%" height="200" src="https://www.youtube.com/embed/9jo51nJrO0k" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div><div class="carousel-item"><iframe width="100%" height="200" src="https://www.youtube.com/embed/Hfm94aHAbYQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div>';
+                        document.getElementById('video-count').textContent = '1 / 2';
+                    }
                 });
         })();
         </script>
 
         <h1>Unity in the Body</h1>
         <p class="subtitle">Ephesians Chapter 4</p>
+        <p class="scripture-ref">Scripture: Ephesians 4</p>
         <p class="duration">Duration: ~2 minutes | Style: Devotional Ballad</p>
+
+        <h2>[Intro]</h2>
+        <div class="intro">
+Unity grows through sacred Word,<br>
+Ephesians, chapter four is heard,<br>
+Christ's love surpasses human thought,<br>
+Now unity is what He's brought,<br>
+One body, one faith Christ has taught.
+        </div>
 
         <h2>[Verse 1]</h2>
         <div class="verse">
-Walk worthy of the calling you've received,<br>
-With humility and gentleness believed,<br>
-Bearing with one another in love so true,<br>
-Eager to keep the unity that binds you.<br>
-One body, one Spirit, one hope, one Lord,<br>
-One faith, one baptism, one God adored.
+Walk worthy of your calling true,<br>
+With humble hearts in all you do,<br>
+Bear with one another in love,<br>
+Keep unity from God above,<br>
+One body, Spirit, hope, one Lord,<br>
+One faith, one God to be adored.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-One body, many parts, together we stand,<br>
-Built up in love by the Master's hand,<br>
-Speaking the truth, growing in grace,<br>
-United in Christ, our dwelling place.
+One body, many parts, we stand,<br>
+Built up in love by Master's hand,<br>
+Speaking truth and growing near,<br>
+United in Christ, ever dear.
         </div>
 
         <h2>[Verse 2]</h2>
         <div class="verse">
-He gave gifts to build His church on earth,<br>
-Apostles, prophets of eternal worth,<br>
-Evangelists, pastors, and teachers too,<br>
-Equipping the saints for the work to do.<br>
-No longer tossed by every wind of lies,<br>
-But growing mature to our full size.
+He gave gifts to build His church,<br>
+Apostles, prophets, holy search,<br>
+Evangelists and teachers too,<br>
+Equipping saints for work to do,<br>
+No longer tossed by winds of lies,<br>
+But growing mature to full size.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-One body, many parts, together we stand,<br>
-Built up in love by the Master's hand,<br>
-Speaking the truth, growing in grace,<br>
-United in Christ, our dwelling place.
+One body, many parts, we stand,<br>
+Built up in love by Master's hand,<br>
+Speaking truth and growing near,<br>
+United in Christ, ever dear.
         </div>
 
         <h2>[Bridge]</h2>
         <div class="bridge">
-Put off the old self, corrupted by desire,<br>
-Be renewed in your mind, lifted higher,<br>
-Put on the new self, created to be,<br>
+Put off the old self of desire,<br>
+Renewed in mind and lifted higher,<br>
+Put on the new self, made to be,<br>
 Righteous and holy, finally free.
         </div>
 
@@ -98,60 +138,50 @@ Righteous and holy, finally free.
 When fearful thoughts are intertwined,<br>
 You calm the storm inside my mind.<br>
 Lord, though I cannot see Your hand,<br>
-Your faithful heart I understand.
+I trust Your heart and all You've planned.
         </div>
 
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Amen.
+        </div>
+
+        <h2>[Pause]</h2>
+        <div class="narration" style="background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); color: #f0e6d3; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2;">
+[Spoken Word, Deep Male Baritone, Calm, Reverent]<br>
+Darkness abates, vanquished instantly;<br>
+Divine Light eternally embraces all now;<br>
+Drawing many into lasting, inner, nurturing, divine peace;<br>
+Always transforming, inspiring, lifting, mending, uniting, saving, illuminating, comforting, and liberating.
+        </div>
+
+        
         <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
 
-        <div class="suno-format" id="suno-text">
-(Devotional Ballad, Emotional, Orchestral, Reverent)
+        <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
 
-[Verse 1]
-Walk worthy of the calling you've received,
-With humility and gentleness believed,
-Bearing with one another in love so true,
-Eager to keep the unity that binds you.
-One body, one Spirit, one hope, one Lord,
-One faith, one baptism, one God adored.
-
-[Chorus]
-One body, many parts, together we stand,
-Built up in love by the Master's hand,
-Speaking the truth, growing in grace,
-United in Christ, our dwelling place.
-
-[Verse 2]
-He gave gifts to build His church on earth,
-Apostles, prophets of eternal worth,
-Evangelists, pastors, and teachers too,
-Equipping the saints for the work to do.
-No longer tossed by every wind of lies,
-But growing mature to our full size.
-
-[Chorus]
-One body, many parts, together we stand,
-Built up in love by the Master's hand,
-Speaking the truth, growing in grace,
-United in Christ, our dwelling place.
-
-[Bridge]
-Put off the old self, corrupted by desire,
-Be renewed in your mind, lifted higher,
-Put on the new self, created to be,
-Righteous and holy, finally free.
-
-[Outro]
-When fearful thoughts are intertwined,
-You calm the storm inside my mind.
-Lord, though I cannot see Your hand,
-Your faithful heart I understand.
-        </div>
-    </div>
-
-    <script>
+        <script>
         function copySunoFormat() {
-            const text = document.getElementById('suno-text').innerText.trim();
-            navigator.clipboard.writeText(text).then(() => {
+            let text = document.getElementById('suno-tags').textContent + '\n\n';
+            const sections = document.querySelectorAll('.song-container h2');
+            sections.forEach(h2 => {
+                const sectionName = h2.textContent.trim();
+                // Only process song sections (starting with [)
+                if (!sectionName.startsWith('[')) return;
+                
+                const nextEl = h2.nextElementSibling;
+                if (nextEl) {
+                    text += sectionName + '\n';
+                    let html = nextEl.innerHTML;
+                    html = html.replace(/<br\s*\/?>/gi, '\n');
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    let content = temp.textContent.trim();
+                    content = content.replace(/\n\s*\n/g, '\n');
+                    text += content + '\n\n';
+                }
+            });
+            navigator.clipboard.writeText(text.trim()).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 btn.textContent = 'Copied!';
                 btn.classList.add('copied');
@@ -162,5 +192,43 @@ Your faithful heart I understand.
             });
         }
     </script>
+
+        <!-- Video Carousel -->
+        <div class="video-carousel-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 15px;">Videos</h2>
+            <div id="carousel-wrapper" style="position: relative; max-width: 500px; margin: 0 auto;">
+                <div id="carousel-controls" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <button onclick="prevVideo()" style="background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: 3px solid #fff; border-radius: 50%; width: 56px; height: 56px; cursor: pointer; font-size: 28px; font-weight: bold; box-shadow: 0 4px 15px rgba(139,0,0,0.4); display: flex; align-items: center; justify-content: center;">&#10094;</button>
+                    <span id="video-count" style="font-weight: bold; color: #333; font-size: 1.1em; background: #f0f0f0; padding: 8px 16px; border-radius: 20px;">1 / 1</span>
+                    <button onclick="nextVideo()" style="background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: 3px solid #fff; border-radius: 50%; width: 56px; height: 56px; cursor: pointer; font-size: 28px; font-weight: bold; box-shadow: 0 4px 15px rgba(139,0,0,0.4); display: flex; align-items: center; justify-content: center;">&#10095;</button>
+                </div>
+                <div id="video-carousel" style="overflow: hidden;">
+                    <!-- Videos will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+        let currentSlide = 0;
+        function showSlide(n) {
+            const items = document.querySelectorAll('.carousel-item');
+            if (items.length === 0) return;
+            currentSlide = (n + items.length) % items.length;
+            items.forEach((item, i) => {
+                item.style.display = i === currentSlide ? 'block' : 'none';
+            });
+            document.getElementById('video-count').textContent = (currentSlide + 1) + ' / ' + items.length;
+        }
+        function nextVideo() { showSlide(currentSlide + 1); }
+        function prevVideo() { showSlide(currentSlide - 1); }
+        </script>
+
+        <!-- iOS Safari scroll spacer - inside container for proper rendering -->
+        <div style="height: 120px; width: 100%;"></div>
+        
+    </div><!-- end song-container -->
+    
+    <!-- Additional body spacer for iOS safe area -->
+    <div style="height: 80px;"></div>
 </body>
 </html>
