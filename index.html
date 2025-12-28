@@ -2536,6 +2536,8 @@
                 chapterFrame.style.display = 'none';
                 mainContent.style.display = 'block';
                 document.body.classList.remove('chapter-view');
+                // Reset body overflow based on sidebar state
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
             }
         }
 
@@ -2565,6 +2567,8 @@
                         document.body.classList.remove('chapter-view');
                         chapterFrame.style.left = '0';
                         chapterFrame.style.width = '100%';
+                        // Reset body overflow based on sidebar state
+                        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
                         // Update URL without reload
                         window.history.pushState({}, '', 'index.html');
                     } else {
@@ -2693,6 +2697,8 @@
                 hamburger.classList.remove('active');
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
+                // Reset body overflow when returning to main content
+                document.body.style.overflow = '';
             }
         });
 

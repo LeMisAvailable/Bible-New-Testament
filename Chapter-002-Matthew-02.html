@@ -224,6 +224,7 @@
         const audioPlayer = document.getElementById('audio-player');
         let currentPlaying = -1;
         let currentTitle = '';
+        let isRestoredSession = false; // Track if audio was restored from previous session
 
         // Check if running inside an iframe
         const isInIframe = window.parent !== window;
@@ -251,9 +252,10 @@
             }
         }
 
-        function showAudioToast() {
+        function showAudioToast(message) {
             const toast = document.getElementById('audio-toast');
             if (toast) {
+                toast.textContent = message || 'We will make this audio available soon';
                 toast.style.display = 'block';
                 setTimeout(() => { toast.style.display = 'none'; }, 3000);
             }
@@ -324,30 +326,29 @@
         function restoreAudioState() {
             const state = JSON.parse(localStorage.getItem('audioState') || '{}');
             if (state.audioPath && state.audioPath.startsWith('music/') && (state.isPlaying || state.isPaused)) {
+                // Restore audio source and position, but do NOT auto-play
                 audioPlayer.src = state.audioPath;
                 audioPlayer.currentTime = state.currentTime || 0;
                 currentPlaying = state.melodyIndex;
                 currentTitle = state.title;
-                updateControlBarUI(state.title, state.isPlaying);
+                isRestoredSession = true; // Mark this as a restored session
 
-                // Notify parent that audio state is being restored
-                notifyParent('audioStateRestored', { title: state.title, isPlaying: state.isPlaying });
+                // Always show paused state - user must click play to resume
+                updateControlBarUI(state.title, false);
+                notifyParent('audioStateRestored', { title: state.title, isPlaying: false });
 
-                if (state.isPlaying) {
-                    audioPlayer.play().catch((e) => {
-                        console.log('Audio autoplay blocked, showing paused state');
-                        updateControlBarUI(state.title, false);
-                        notifyParent('audioStateRestored', { title: state.title, isPlaying: false });
-                    });
-                }
-
+                // Update button to show it can be played (not playing state)
                 if (state.chapter === getChapterName() && state.melodyIndex >= 0) {
                     if (buttons[currentPlaying] && buttons[currentPlaying].btn) {
-                        buttons[currentPlaying].btn.classList.add('playing');
-                        buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                        buttons[currentPlaying].text.textContent = buttons[currentPlaying].label.replace('Listen Now', 'Pause Now');
+                        // Show in ready-to-play state, not playing state
+                        buttons[currentPlaying].btn.classList.remove('playing');
+                        buttons[currentPlaying].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                        buttons[currentPlaying].text.textContent = buttons[currentPlaying].label;
                     }
                 }
+
+                // Save the paused state
+                saveAudioState();
             }
         }
 
@@ -417,6 +418,11 @@
 
         function acbTogglePlay() {
             if (audioPlayer.paused) {
+                // Show toast if resuming from a restored session
+                if (isRestoredSession) {
+                    showAudioToast('Resuming the previously running song');
+                    isRestoredSession = false; // Clear flag after showing toast once
+                }
                 audioPlayer.play();
                 updateControlBarUI(null, true);
                 notifyParent('audioResumed');
