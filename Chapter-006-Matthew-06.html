@@ -220,13 +220,10 @@
         </div>
         <div id="audio-toast">We will make this audio available soon</div>
                 <script>
-        // Persistent Audio Controller with Parent-Iframe Communication
-        const audioPlayer = document.getElementById('audio-player');
-        let currentPlaying = -1;
-        let currentTitle = '';
-
-        // Check if running inside an iframe
+        // Audio Controller - delegates playback to parent window for persistence
         const isInIframe = window.parent !== window;
+        let currentPlayingIndex = -1;
+        let currentAudioPath = '';
 
         const buttons = [
             { btn: document.getElementById('listen-btn-1'), icon: document.getElementById('play-icon-1'), text: document.getElementById('listen-text-1'), label: 'Listen Now (Common Melody)' },
@@ -237,278 +234,137 @@
             return window.location.pathname.split('/').pop().replace('.html', '');
         }
 
-        function formatTime(sec) {
-            if (isNaN(sec)) return '0:00';
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return m + ':' + (s < 10 ? '0' : '') + s;
-        }
-
-        // Send message to parent window if in iframe
-        function notifyParent(type, data = {}) {
-            if (isInIframe) {
-                window.parent.postMessage({ type, ...data }, '*');
-            }
-        }
-
-        function showAudioToast() {
+        function showAudioToast(message) {
             const toast = document.getElementById('audio-toast');
             if (toast) {
+                toast.textContent = message || 'We will make this audio available soon';
                 toast.style.display = 'block';
                 setTimeout(() => { toast.style.display = 'none'; }, 3000);
             }
         }
 
-        function resetButton(index) {
-            if (buttons[index] && buttons[index].btn) {
+        function resetAllButtons() {
+            buttons.forEach((b, i) => {
+                if (b.btn) {
+                    b.btn.classList.remove('playing');
+                    b.icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                    b.text.textContent = b.label;
+                }
+            });
+        }
+
+        function setButtonPlaying(index, isPlaying) {
+            if (index < 0 || !buttons[index] || !buttons[index].btn) return;
+            if (isPlaying) {
+                buttons[index].btn.classList.add('playing');
+                buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                buttons[index].text.textContent = buttons[index].label.replace('Listen Now', 'Pause Now');
+            } else {
                 buttons[index].btn.classList.remove('playing');
                 buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
                 buttons[index].text.textContent = buttons[index].label;
             }
         }
 
-        function resetAllButtons() {
-            buttons.forEach((b, i) => resetButton(i));
-        }
-
-        function updateControlBarUI(title, isPlaying) {
-            const bar = document.getElementById('audio-control-bar');
-            const titleEl = document.getElementById('acb-title');
-            const iconEl = document.getElementById('acb-play-icon');
-            if (bar) bar.classList.add('visible');
-            if (titleEl && title) {
-                titleEl.textContent = title;
-                currentTitle = title;
-            }
-            if (iconEl) iconEl.innerHTML = isPlaying ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
-        }
-
-        function hideControlBar() {
-            const bar = document.getElementById('audio-control-bar');
-            if (bar) bar.classList.remove('visible');
-            notifyParent('audioStopped');
-        }
-
-        function saveAudioState() {
-            const titleEl = document.getElementById('acb-title');
-            let audioPath = '';
-            if (audioPlayer.src && audioPlayer.src.includes('music/')) {
-                audioPath = 'music/' + audioPlayer.src.split('music/').pop();
-            }
-            const state = {
-                audioPath: audioPath,
-                currentTime: audioPlayer.currentTime,
-                isPlaying: !audioPlayer.paused && audioPath !== '',
-                isPaused: audioPlayer.paused && audioPlayer.currentTime > 0 && audioPath !== '',
-                title: titleEl ? titleEl.textContent : '',
-                chapter: getChapterName(),
-                melodyIndex: currentPlaying
-            };
-            localStorage.setItem('audioState', JSON.stringify(state));
-        }
-
-        // Completely stop and clean up audio player
-        function stopAudioCompletely() {
-            try {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                audioPlayer.removeAttribute('src');
-                audioPlayer.load();
-            } catch (e) {}
-            resetAllButtons();
-            currentPlaying = -1;
-            hideControlBar();
-            localStorage.removeItem('audioState');
-        }
-
-        function restoreAudioState() {
-            const state = JSON.parse(localStorage.getItem('audioState') || '{}');
-            if (state.audioPath && state.audioPath.startsWith('music/') && (state.isPlaying || state.isPaused)) {
-                audioPlayer.src = state.audioPath;
-                audioPlayer.currentTime = state.currentTime || 0;
-                currentPlaying = state.melodyIndex;
-                currentTitle = state.title;
-                updateControlBarUI(state.title, state.isPlaying);
-
-                // Notify parent that audio state is being restored
-                notifyParent('audioStateRestored', { title: state.title, isPlaying: state.isPlaying });
-
-                if (state.isPlaying) {
-                    audioPlayer.play().catch((e) => {
-                        console.log('Audio autoplay blocked, showing paused state');
-                        updateControlBarUI(state.title, false);
-                        notifyParent('audioStateRestored', { title: state.title, isPlaying: false });
-                    });
-                }
-
-                if (state.chapter === getChapterName() && state.melodyIndex >= 0) {
-                    if (buttons[currentPlaying] && buttons[currentPlaying].btn) {
-                        buttons[currentPlaying].btn.classList.add('playing');
-                        buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                        buttons[currentPlaying].text.textContent = buttons[currentPlaying].label.replace('Listen Now', 'Pause Now');
-                    }
-                }
-            }
-        }
-
-        function hasValidAudioSrc() {
-            return audioPlayer.src && audioPlayer.src.includes('music/') && !audioPlayer.src.endsWith('/');
-        }
-
         async function playAudio(index) {
-            // If same button clicked and audio has valid source, toggle pause
-            if (currentPlaying === index && hasValidAudioSrc()) {
-                if (audioPlayer.paused) {
-                    audioPlayer.play();
-                    buttons[index].btn.classList.add('playing');
-                    buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                    buttons[index].text.textContent = buttons[index].label.replace('Listen Now', 'Pause Now');
-                    updateControlBarUI(null, true);
-                    notifyParent('audioResumed');
-                } else {
-                    audioPlayer.pause();
-                    buttons[index].btn.classList.remove('playing');
-                    buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-                    buttons[index].text.textContent = buttons[index].label;
-                    updateControlBarUI(null, false);
-                    notifyParent('audioPaused');
-                }
-                saveAudioState();
-                return;
-            }
-
-            // IMPORTANT: Stop any currently playing audio COMPLETELY before starting new
-            stopAudioCompletely();
+            const chapterName = getChapterName();
+            const melodyType = index === 0 ? 'Common' : 'Unique';
+            const title = chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')';
 
             try {
                 const response = await fetch('setup/audiolinks.json?t=' + Date.now());
                 const audiolinks = await response.json();
-                const chapterName = getChapterName();
                 const audioFiles = audiolinks[chapterName];
+
                 if (audioFiles && audioFiles !== 'sample-audio-file.wav sample-audio-file.wav') {
                     const files = audioFiles.split(' ');
                     const audioFile = files[index] || files[0];
+
                     if (audioFile && audioFile !== 'sample-audio-file.wav') {
                         const audioPath = 'music/' + audioFile;
+
+                        // Check if file exists
                         const checkResponse = await fetch(audioPath, { method: 'HEAD' });
                         if (checkResponse.ok) {
-                            audioPlayer.src = audioPath;
-                            audioPlayer.currentTime = 0;
-                            audioPlayer.play();
-                            currentPlaying = index;
+                            // Reset all buttons first
+                            resetAllButtons();
 
-                            buttons[index].btn.classList.add('playing');
-                            buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                            buttons[index].text.textContent = buttons[index].label.replace('Listen Now', 'Pause Now');
+                            if (isInIframe) {
+                                // Send play request to parent
+                                window.parent.postMessage({
+                                    type: 'playAudio',
+                                    audioPath: audioPath,
+                                    title: title,
+                                    chapterName: chapterName,
+                                    melodyIndex: index
+                                }, '*');
+                            }
 
-                            const melodyType = index === 0 ? 'Common' : 'Unique';
-                            const title = chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')';
-                            currentTitle = title;
-                            updateControlBarUI(title, true);
-                            notifyParent('audioStarted', { title });
-                            saveAudioState();
+                            // Update button state
+                            currentPlayingIndex = index;
+                            currentAudioPath = audioPath;
+                            setButtonPlaying(index, true);
                             return;
                         }
                     }
                 }
                 showAudioToast();
-            } catch (e) { showAudioToast(); }
-        }
-
-        function acbTogglePlay() {
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-                updateControlBarUI(null, true);
-                notifyParent('audioResumed');
-                if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
-                    buttons[currentPlaying].btn.classList.add('playing');
-                    buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                    buttons[currentPlaying].text.textContent = buttons[currentPlaying].label.replace('Listen Now', 'Pause Now');
-                }
-            } else {
-                audioPlayer.pause();
-                updateControlBarUI(null, false);
-                notifyParent('audioPaused');
-                if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
-                    buttons[currentPlaying].btn.classList.remove('playing');
-                    buttons[currentPlaying].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-                    buttons[currentPlaying].text.textContent = buttons[currentPlaying].label;
-                }
-            }
-            saveAudioState();
-        }
-
-        function acbStop() {
-            stopAudioCompletely();
-        }
-
-        function acbSkip(seconds) {
-            audioPlayer.currentTime = Math.max(0, Math.min(audioPlayer.duration || 0, audioPlayer.currentTime + seconds));
-            saveAudioState();
-        }
-
-        function acbSeek(value) {
-            if (audioPlayer.duration) {
-                audioPlayer.currentTime = (value / 100) * audioPlayer.duration;
-                saveAudioState();
+            } catch (e) {
+                showAudioToast();
             }
         }
 
-        audioPlayer.addEventListener('timeupdate', () => {
-            const cur = document.getElementById('acb-current');
-            const seek = document.getElementById('acb-seek');
-            if (cur) cur.textContent = formatTime(audioPlayer.currentTime);
-            if (seek && audioPlayer.duration) {
-                seek.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-            }
-            // Send time updates to parent
-            notifyParent('audioTimeUpdate', {
-                currentTime: audioPlayer.currentTime,
-                duration: audioPlayer.duration || 0
-            });
-        });
-
-        audioPlayer.addEventListener('loadedmetadata', () => {
-            const dur = document.getElementById('acb-duration');
-            if (dur) dur.textContent = formatTime(audioPlayer.duration);
-        });
-
-        audioPlayer.addEventListener('ended', () => {
-            resetAllButtons();
-            currentPlaying = -1;
-            updateControlBarUI(null, false);
-            notifyParent('audioEnded');
-            localStorage.removeItem('audioState');
-        });
-
-        audioPlayer.addEventListener('play', () => saveAudioState());
-        audioPlayer.addEventListener('pause', () => saveAudioState());
-
-        // Listen for commands from parent window (when in iframe)
+        // Listen for messages from parent
         window.addEventListener('message', (event) => {
             const data = event.data;
-            if (!data || !data.action) return;
+            if (!data || !data.type) return;
 
-            switch (data.action) {
-                case 'togglePlay':
-                    acbTogglePlay();
+            switch (data.type) {
+                case 'parentAudioState':
+                    // Parent is telling us current audio state
+                    if (data.audioPath && data.audioPath.includes(getChapterName())) {
+                        // This chapter's audio is playing/paused
+                        // Determine which button based on audio path
+                        if (data.isPlaying) {
+                            // Find which button matches
+                            if (currentPlayingIndex >= 0) {
+                                setButtonPlaying(currentPlayingIndex, true);
+                            }
+                        }
+                    }
                     break;
-                case 'stop':
-                    acbStop();
+
+                case 'parentAudioStateChanged':
+                    // Parent audio play/pause state changed
+                    if (currentPlayingIndex >= 0) {
+                        setButtonPlaying(currentPlayingIndex, data.isPlaying);
+                    }
                     break;
-                case 'skip':
-                    acbSkip(data.seconds || 0);
+
+                case 'parentAudioStopped':
+                    // Parent stopped audio
+                    resetAllButtons();
+                    currentPlayingIndex = -1;
+                    currentAudioPath = '';
                     break;
-                case 'seek':
-                    acbSeek(data.value || 0);
+
+                case 'parentAudioEnded':
+                    // Audio finished playing
+                    resetAllButtons();
+                    currentPlayingIndex = -1;
                     break;
             }
         });
 
-        window.addEventListener('beforeunload', saveAudioState);
-
-        document.addEventListener('DOMContentLoaded', restoreAudioState);
-        if (document.readyState === 'complete') restoreAudioState();
+        // On page load, query parent for current audio state
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isInIframe) {
+                // Small delay to ensure parent is ready
+                setTimeout(() => {
+                    window.parent.postMessage({ type: 'getAudioState' }, '*');
+                }, 100);
+            }
+        });
         </script>
 
 
@@ -592,6 +448,7 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
 
         
         <button class="copy-btn" onclick="copySunoFormat()">Copy Lyrics</button>
+        <div style="text-align: center;"><button class="copy-btn" onclick="getSheetMusic()" style="background: linear-gradient(135deg, #6b5b95 0%, #8b7cb5 100%);">Get Sheet Music</button></div>
 
         <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
 
@@ -625,6 +482,10 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
                     btn.classList.remove('copied');
                 }, 2000);
             });
+        }
+
+        function getSheetMusic() {
+            showAudioToast('Sheet music functionality is not yet available');
         }
     </script>
 
