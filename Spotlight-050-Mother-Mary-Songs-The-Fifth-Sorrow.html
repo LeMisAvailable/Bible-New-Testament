@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matthew 8 - Lord of Wind and Wave</title>
+    <title>The Fifth Sorrow - A Marian Devotional Song</title>
     <style>
         body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
         .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
-        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #4a90a4; padding-bottom: 15px; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
-        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
-        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
-        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
-        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        h2 { color: #4a90a4; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #4a90a4; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #4a90a4 0%, #357a8c 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #e8f4f8; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
         .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
-        .intro { background: linear-gradient(135deg, #2d5016 0%, #4a7c23 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
-        .scripture-ref { text-align: center; color: #8b0000; font-size: 0.95em; margin-bottom: 10px; font-weight: bold; }
         .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
-        a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
-        a.back-link:hover { text-decoration: underline; }
-        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; transition: transform 0.2s, box-shadow 0.2s; }
-        .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(139,0,0,0.4); }
-        .copy-btn:active { transform: translateY(0); }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #4a90a4 0%, #357a8c 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
         .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
         .suno-format { display: none; }
         .carousel-item { display: none; }
         .carousel-item.active { display: block; }
+        .intro { background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
     </style>
 </head>
 <body>
@@ -44,19 +39,19 @@
                 .then(response => response.json())
                 .then(data => {
                     const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
-                    // Top 2 videos
                     document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/' + (videoIds[0] || '9jo51nJrO0k');
                     document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/' + (videoIds[1] || videoIds[0] || '9jo51nJrO0k');
-                    // Bottom carousel
                     const carousel = document.getElementById('video-carousel');
                     if (carousel) {
                         carousel.innerHTML = videoIds.map((id, i) =>
                             '<div class="carousel-item' + (i === 0 ? ' active' : '') + '">' +
-                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>' +
+                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allowfullscreen style="border-radius: 10px;"></iframe>' +
                             '</div>'
                         ).join('');
-                        // Update video count
-                        document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        if (videoIds.length > 1) {
+                            document.getElementById('carousel-controls').style.display = 'flex';
+                            document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        }
                         // Initialize carousel display
                         document.addEventListener('DOMContentLoaded', () => { if (typeof showSlide === 'function') showSlide(0); });
                         if (document.readyState === 'complete') { setTimeout(() => { if (typeof showSlide === 'function') showSlide(0); }, 100); }
@@ -75,62 +70,61 @@
         })();
         </script>
 
-        <h1>Lord of Wind and Wave</h1>
-        <p class="subtitle">Matthew Chapter 8</p>
-        <p class="scripture-ref">Scripture: Matthew 8</p>
-        <p class="duration">Duration: ~2 minutes | Style: Epic Cinematic</p>
+        <h1>The Fifth Sorrow</h1>
+        <p class="subtitle">Standing at the Foot of the Cross (John 19:25)</p>
+        <p class="duration">Duration: ~3 minutes | Style: Marian Devotional</p>
 
         <h2>[Intro]</h2>
         <div class="intro">
-Peace descends through the sacred Word,<br>
-Gospel of Matthew, chapter eight is heard,<br>
-Christ taught to build upon the rock,<br>
-Now healings come to those who knock,<br>
-And storms obey at Jesus' talk.
+Beneath the cross you bravely stood,<br>
+And watched your Jesus slowly dying,<br>
+His precious body drained of blood,<br>
+The fifth sorrow kept you standing,<br>
+Let every heart stand at His cross.
         </div>
 
         <h2>[Verse 1]</h2>
         <div class="verse">
-A leper knelt before the Lord,<br>
-"If willing, heal me," he implored,<br>
-And Jesus reached and touched the man,<br>
-"Yes, I am willing," God's own plan,<br>
-A centurion's faith shone bright,<br>
-"Just speak the word," with humble might.
+Upon the road of sorrows walking,<br>
+Your eyes met His with love so deep,<br>
+No words were needed in that moment,<br>
+A promise that you both would keep,<br>
+To see this sacrifice completed,<br>
+Though all the world began to weep.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-"Peace, be still!" the Master speaks,<br>
-The wind obeys, the storm now sleeps,<br>
-What kind of man commands the sea?<br>
-The Son of God who sets us free.
+The fifth sorrow held you at the cross,<br>
+Where Jesus hung for all mankind,<br>
+O Mary, help us stand with Jesus,<br>
+And leave our fears and doubts behind.
         </div>
 
         <h2>[Verse 2]</h2>
         <div class="verse">
-Peter's mother burned with fever,<br>
-One touch from Jesus then healed her,<br>
-When evening came the sick were brought,<br>
-And every healing that they sought,<br>
-He drove out demons with a word,<br>
-The greatest Healer ever heard.
+O Mary, help us stand with Jesus,<br>
+And leave our fears and doubts behind,<br>
+The fifth sorrow held you at the cross,<br>
+Where Jesus hung for all mankind,<br>
+Your courage in that darkest hour,<br>
+Inspires us to stand today.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-"Peace, be still!" the Master speaks,<br>
-The wind obeys, the storm now sleeps,<br>
-What kind of man commands the sea?<br>
-The Son of God who sets us free.
+The fifth sorrow held you at the cross,<br>
+Where Jesus hung for all mankind,<br>
+O Mary, help us stand with Jesus,<br>
+And leave our fears and doubts behind.
         </div>
 
         <h2>[Bridge]</h2>
         <div class="bridge">
-The foxes have holes, birds have nests,<br>
-But the Son of Man finds no rest,<br>
-So follow Me, the cost is high,<br>
-Just leave the dead, don't ask Me why.
+Seven sorrows you would carry,<br>
+This the fifth that pierced you through,<br>
+Yet beneath His cross you stayed there,<br>
+Faithful, loving, strong, and true.
         </div>
 
         <h2>[Outro]</h2>
@@ -157,8 +151,7 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
 
         
         <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
-
-        <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
+        <span id="suno-tags" style="display:none;">(Gentle Orchestral, Cinematic, Church Choir, Marian Devotional, Reverent Female Vocals, Easy to sing along, Clear pronunciation, Emotional, Orchestral, Prayerful)</span>
 
         <script>
         function copySunoFormat() {
