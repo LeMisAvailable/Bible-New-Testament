@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark 15 - The Crucifixion</title>
+    <title>Daughter of Zion Sings - A Marian Devotional Song</title>
     <style>
         body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
         .song-container { background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
-        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #8b0000; padding-bottom: 15px; margin-bottom: 5px; }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 3px solid #4a90a4; padding-bottom: 15px; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #666; font-style: italic; margin-bottom: 20px; }
-        h2 { color: #8b0000; margin-top: 25px; font-size: 1.1em; }
-        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #8b0000; margin: 15px 0; line-height: 1.8; }
-        .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
-        .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
+        h2 { color: #4a90a4; margin-top: 25px; font-size: 1.1em; }
+        .verse { background: #f8f9fa; padding: 15px; border-left: 4px solid #4a90a4; margin: 15px 0; line-height: 1.8; }
+        .chorus { background: linear-gradient(135deg, #4a90a4 0%, #357a8c 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
+        .bridge { background: #e8f4f8; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
         .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
-        .scripture-ref { text-align: center; color: #8b0000; font-size: 0.95em; margin-bottom: 10px; font-weight: bold; }
         .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
-        a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
-        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
+        .copy-btn { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #4a90a4 0%, #357a8c 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; }
         .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
         .suno-format { display: none; }
         .carousel-item { display: none; }
         .carousel-item.active { display: block; }
-        .intro { background: linear-gradient(135deg, #2d5016 0%, #4a7c23 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
+        .intro { background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
     </style>
 </head>
 <body>
@@ -41,19 +39,19 @@
                 .then(response => response.json())
                 .then(data => {
                     const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
-                    // Top 2 videos
                     document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/' + (videoIds[0] || '9jo51nJrO0k');
                     document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/' + (videoIds[1] || videoIds[0] || '9jo51nJrO0k');
-                    // Bottom carousel
                     const carousel = document.getElementById('video-carousel');
                     if (carousel) {
                         carousel.innerHTML = videoIds.map((id, i) =>
                             '<div class="carousel-item' + (i === 0 ? ' active' : '') + '">' +
-                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>' +
+                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allowfullscreen style="border-radius: 10px;"></iframe>' +
                             '</div>'
                         ).join('');
-                        // Update video count
-                        document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        if (videoIds.length > 1) {
+                            document.getElementById('carousel-controls').style.display = 'flex';
+                            document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        }
                         // Initialize carousel display
                         document.addEventListener('DOMContentLoaded', () => { if (typeof showSlide === 'function') showSlide(0); });
                         if (document.readyState === 'complete') { setTimeout(() => { if (typeof showSlide === 'function') showSlide(0); }, 100); }
@@ -71,62 +69,62 @@
                 });
         })();
         </script>
-        <h1>The Crucifixion</h1>
-        <p class="subtitle">Mark Chapter 15</p>
-        <p class="scripture-ref">Scripture: Mark 15</p>
-        <p class="duration">Duration: ~2 minutes | Style: Mournful Worship</p>
+
+        <h1>Daughter of Zion Sings</h1>
+        <p class="subtitle">A Song of Israel's Hope (Zephaniah 3:14)</p>
+        <p class="duration">Duration: ~3 minutes | Style: Marian Devotional</p>
 
         <h2>[Intro]</h2>
         <div class="intro">
-We see light in the sacred Word,<br>
-Gospel of Mark, chapter fifteen is heard,<br>
-Gethsemane heard Jesus cry,<br>
-Now on the cross He's lifted high,<br>
-The Lamb of God has come to die.
+Through you the Savior came to save us,<br>
+Immanuel, God with us to dwell,<br>
+The prophets longed to see your Jesus,<br>
+The story that you came to tell,<br>
+Let every daughter of Zion sing.
         </div>
 
         <h2>[Verse 1]</h2>
         <div class="verse">
-Before Pilate the King stood bound,<br>
-"Crucify Him!" the crowd resounds,<br>
-They chose Barabbas, set him free,<br>
-While Jesus walked to Calvary.<br>
-A crown of thorns upon His brow,<br>
-The Lamb of God fulfills His vow.
+O daughter fair of ancient Zion,<br>
+Your song rings out across the land,<br>
+The psalms of David find their echo,<br>
+In words that help us understand,<br>
+Your joy proclaims the King is coming,<br>
+Salvation rests within God's hand.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-Eloi, Eloi, why forsake?<br>
-"My God, My God," my heart does break,<br>
-The veil was torn from top to ground,<br>
-In death, salvation has been found.
+Daughter of Zion, sing with gladness,<br>
+Your King has come to set you free,<br>
+O Mary, Mother, Queen of Zion,<br>
+Lead us to Jesus' victory.
         </div>
 
         <h2>[Verse 2]</h2>
         <div class="verse">
-At Golgotha between two thieves,<br>
-He hung in pain while heaven grieves,<br>
-And darkness covered all the land,<br>
-From noon till three by God's own hand.<br>
-With His last breath, He cried aloud,<br>
-And yielded up before the crowd.
+Yet you, sweet maiden, held Him closer,<br>
+And nursed Him in your warm embrace,<br>
+O Daughter, Mother, Queen of Zion,<br>
+Lead us to your Son's saving grace,<br>
+You cradled hope within your arms, dear,<br>
+The Light that shines on every race.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-Eloi, Eloi, why forsake?<br>
-"My God, My God," my heart does break,<br>
-The veil was torn from top to ground,<br>
-In death, salvation has been found.
+Daughter of Zion, sing with gladness,<br>
+Your King has come to set you free,<br>
+O Mary, Mother, Queen of Zion,<br>
+Lead us to Jesus' victory.
         </div>
 
         <h2>[Bridge]</h2>
         <div class="bridge">
-The centurion watched Him die,<br>
-"Truly, this was God's Son," his cry,<br>
-And Joseph took the body down,<br>
-And laid Him in a tomb in town.
+Rejoice greatly, O daughter fair,<br>
+Your King is coming, meek and true,<br>
+Your Jesus rides on humble donkey,<br>
+Salvation comes through Him to you.
         </div>
 
         <h2>[Outro]</h2>
@@ -153,7 +151,7 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
 
         
         <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
-        <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
+        <span id="suno-tags" style="display:none;">(Gentle Orchestral, Cinematic, Church Choir, Marian Devotional, Reverent Female Vocals, Easy to sing along, Clear pronunciation, Emotional, Orchestral, Prayerful)</span>
 
         <script>
         function copySunoFormat() {

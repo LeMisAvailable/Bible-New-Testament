@@ -14,6 +14,7 @@
         .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
         .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
         .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .scripture-ref { text-align: center; color: #8b0000; font-size: 0.95em; margin-bottom: 10px; font-weight: bold; }
         .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
         a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
         a.back-link:hover { text-decoration: underline; }
@@ -22,12 +23,18 @@
         .copy-btn:active { transform: translateY(0); }
         .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
         .suno-format { display: none; }
+        .carousel-item { display: none; }
+        .carousel-item.active { display: block; }
+        .intro { background: linear-gradient(135deg, #2d5016 0%, #4a7c23 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
     </style>
 </head>
 <body>
     <div class="song-container">
         <div class="video-container" style="text-align: center; margin-bottom: 20px;">
-            <iframe id="chapter-video" width="100%" height="250" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 500px; border-radius: 10px;"></iframe>
+            <div id="top-videos" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <iframe id="chapter-video-1" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+                <iframe id="chapter-video-2" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+            </div>
         </div>
 
         <script>
@@ -36,61 +43,94 @@
             fetch('videolinks.json')
                 .then(response => response.json())
                 .then(data => {
-                    const videoId = data[chapterName] || '9jo51nJrO0k';
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/' + videoId;
+                    const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
+                    // Top 2 videos
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/' + (videoIds[0] || '9jo51nJrO0k');
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/' + (videoIds[1] || videoIds[0] || '9jo51nJrO0k');
+                    // Bottom carousel
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = videoIds.map((id, i) =>
+                            '<div class="carousel-item' + (i === 0 ? ' active' : '') + '">' +
+                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>' +
+                            '</div>'
+                        ).join('');
+                        // Update video count
+                        document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        // Initialize carousel display
+                        document.addEventListener('DOMContentLoaded', () => { if (typeof showSlide === 'function') showSlide(0); });
+                        if (document.readyState === 'complete') { setTimeout(() => { if (typeof showSlide === 'function') showSlide(0); }, 100); }
+                    }
                 })
                 .catch(() => {
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    // Fallback carousel with 2 videos
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = '<div class="carousel-item active"><iframe width="100%" height="200" src="https://www.youtube.com/embed/9jo51nJrO0k" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div><div class="carousel-item"><iframe width="100%" height="200" src="https://www.youtube.com/embed/Hfm94aHAbYQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div>';
+                        document.getElementById('video-count').textContent = '1 / 2';
+                    }
                 });
         })();
         </script>
 
         <h1>Great Is Your Faith</h1>
         <p class="subtitle">Luke Chapter 7 - Centurion's Faith and the Sinful Woman</p>
+        <p class="scripture-ref">Scripture: Luke 7</p>
         <p class="duration">Duration: ~2 minutes | Style: Devotional Ballad</p>
+
+        <h2>[Intro]</h2>
+        <div class="intro">
+Answers come through the sacred Word,<br>
+Gospel of Luke, chapter seven is heard,<br>
+Blessed are all who mourn and weep,<br>
+A centurion's faith runs deep,<br>
+A woman's tears His feet would steep.
+        </div>
 
         <h2>[Verse 1]</h2>
         <div class="verse">
-A centurion sent word from afar,<br>
-"Lord, my servant lies beneath death's scar,<br>
-I'm not worthy that You'd come to me,<br>
-Just say the word, and he'll be free."<br>
-Jesus marveled at this soldier's trust,<br>
+A soldier sent his word from far,<br>
+"Lord, my servant bears death's scar,<br>
+I'm not worthy You'd come near,<br>
+Just speak the word and heal him here."<br>
+Jesus marveled at such trust,<br>
 Such faith in Israel? None so just.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-Great is your faith that moves the hand of God,<br>
-Great is your love that walks where others never trod,<br>
-The broken find their healing at His feet,<br>
-Where sinners and the Savior meet.
+Great is your faith that moves God's hand,<br>
+Great is your love that takes a stand,<br>
+The broken healed at Jesus' feet,<br>
+Where sinner and the Savior meet.
         </div>
 
         <h2>[Verse 2]</h2>
         <div class="verse">
-A woman came with tears and alabaster,<br>
-Her sins were many, but her love came faster,<br>
-She washed His feet with sorrow's rain,<br>
-And kissed away her guilt and shame.<br>
-"Your sins are forgiven," Jesus said,<br>
+A woman came with tears to share,<br>
+Her sins were many, love was there,<br>
+She washed His feet, her heart laid bare,<br>
+And kissed them with her grateful prayer,<br>
+"Your sins forgiven," Jesus said,<br>
 "Your faith has saved you, go ahead."
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-Great is your faith that moves the hand of God,<br>
-Great is your love that walks where others never trod,<br>
-The broken find their healing at His feet,<br>
-Where sinners and the Savior meet.
+Great is your faith that moves God's hand,<br>
+Great is your love that takes a stand,<br>
+The broken healed at Jesus' feet,<br>
+Where sinner and the Savior meet.
         </div>
 
         <h2>[Bridge]</h2>
         <div class="bridge">
-At Nain's gate, a widow wept alone,<br>
-Her only son was dead and gone,<br>
+At Nain's gate the widow cried,<br>
+Her only son had lately died,<br>
 But Jesus said, "Young man, arise!"<br>
-And death surrendered to Life's surprise.
+And death gave way to Life's surprise.
         </div>
 
         <h2>[Outro]</h2>
@@ -98,60 +138,50 @@ And death surrendered to Life's surprise.
 When fearful thoughts are intertwined,<br>
 You calm the storm inside my mind.<br>
 Lord, though I cannot see Your hand,<br>
-Your faithful heart I understand.
+I trust Your heart and all You've planned.
         </div>
 
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Amen.
+        </div>
+
+        <h2>[Pause]</h2>
+        <div class="narration" style="background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); color: #f0e6d3; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2;">
+[Spoken Word, Deep Male Baritone, Calm, Reverent]<br>
+Darkness abates, vanquished instantly;<br>
+Divine Light eternally embraces all now;<br>
+Drawing many into lasting, inner, nurturing, divine peace;<br>
+Always transforming, inspiring, lifting, mending, uniting, saving, illuminating, comforting, and liberating.
+        </div>
+
+        
         <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
 
-        <div class="suno-format" id="suno-text">
-(Devotional Ballad, Emotional, Orchestral, Reverent)
+        <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
 
-[Verse 1]
-A centurion sent word from afar,
-"Lord, my servant lies beneath death's scar,
-I'm not worthy that You'd come to me,
-Just say the word, and he'll be free."
-Jesus marveled at this soldier's trust,
-Such faith in Israel? None so just.
-
-[Chorus]
-Great is your faith that moves the hand of God,
-Great is your love that walks where others never trod,
-The broken find their healing at His feet,
-Where sinners and the Savior meet.
-
-[Verse 2]
-A woman came with tears and alabaster,
-Her sins were many, but her love came faster,
-She washed His feet with sorrow's rain,
-And kissed away her guilt and shame.
-"Your sins are forgiven," Jesus said,
-"Your faith has saved you, go ahead."
-
-[Chorus]
-Great is your faith that moves the hand of God,
-Great is your love that walks where others never trod,
-The broken find their healing at His feet,
-Where sinners and the Savior meet.
-
-[Bridge]
-At Nain's gate, a widow wept alone,
-Her only son was dead and gone,
-But Jesus said, "Young man, arise!"
-And death surrendered to Life's surprise.
-
-[Outro]
-When fearful thoughts are intertwined,
-You calm the storm inside my mind.
-Lord, though I cannot see Your hand,
-Your faithful heart I understand.
-        </div>
-    </div>
-
-    <script>
+        <script>
         function copySunoFormat() {
-            const text = document.getElementById('suno-text').innerText.trim();
-            navigator.clipboard.writeText(text).then(() => {
+            let text = document.getElementById('suno-tags').textContent + '\n\n';
+            const sections = document.querySelectorAll('.song-container h2');
+            sections.forEach(h2 => {
+                const sectionName = h2.textContent.trim();
+                // Only process song sections (starting with [)
+                if (!sectionName.startsWith('[')) return;
+                
+                const nextEl = h2.nextElementSibling;
+                if (nextEl) {
+                    text += sectionName + '\n';
+                    let html = nextEl.innerHTML;
+                    html = html.replace(/<br\s*\/?>/gi, '\n');
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    let content = temp.textContent.trim();
+                    content = content.replace(/\n\s*\n/g, '\n');
+                    text += content + '\n\n';
+                }
+            });
+            navigator.clipboard.writeText(text.trim()).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 btn.textContent = 'Copied!';
                 btn.classList.add('copied');
@@ -162,5 +192,37 @@ Your faithful heart I understand.
             });
         }
     </script>
+
+        <!-- Video Carousel -->
+        <div class="video-carousel-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 15px;">Videos</h2>
+            <div id="carousel-wrapper" style="position: relative; max-width: 500px; margin: 0 auto;">
+                <div id="video-carousel" style="overflow: hidden;">
+                    <!-- Videos will be populated by JavaScript -->
+                </div>
+                <div id="carousel-controls" style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 10px;">
+                    <button onclick="prevVideo()" style="background: #8b0000; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">&#10094;</button>
+                    <span id="video-count" style="font-weight: bold; color: #666;">1 / 1</span>
+                    <button onclick="nextVideo()" style="background: #8b0000; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">&#10095;</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        let currentSlide = 0;
+        function showSlide(n) {
+            const items = document.querySelectorAll('.carousel-item');
+            if (items.length === 0) return;
+            currentSlide = (n + items.length) % items.length;
+            items.forEach((item, i) => {
+                item.style.display = i === currentSlide ? 'block' : 'none';
+            });
+            document.getElementById('video-count').textContent = (currentSlide + 1) + ' / ' + items.length;
+        }
+        function nextVideo() { showSlide(currentSlide + 1); }
+        function prevVideo() { showSlide(currentSlide - 1); }
+        </script>
+
+        
 </body>
 </html>
