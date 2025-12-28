@@ -135,7 +135,7 @@
 </head>
 <body>
     <div class="song-container">
-        <div class="video-container" style="text-align: center; margin-bottom: 20px;">
+        <div id="top-videos-container" class="video-container" style="text-align: center; margin-bottom: 20px;">
             <div id="top-videos" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
                 <iframe id="chapter-video-1" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
                 <iframe id="chapter-video-2" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
@@ -176,6 +176,29 @@
                         carousel.innerHTML = '<div class="carousel-item active"><iframe width="100%" height="200" src="https://www.youtube.com/embed/9jo51nJrO0k" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div><div class="carousel-item"><iframe width="100%" height="200" src="https://www.youtube.com/embed/Hfm94aHAbYQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div>';
                         document.getElementById('video-count').textContent = '1 / 2';
                     }
+                });
+        })();
+        </script>
+
+        <!-- Load setup configuration -->
+        <script>
+        (function() {
+            fetch('setup/setup.json?t=' + Date.now())
+                .then(response => response.json())
+                .then(config => {
+                    // SHOW_VIDEO_LINKS_ON_TOP: if false, hide top videos (default: true)
+                    if (config.SHOW_VIDEO_LINKS_ON_TOP === false) {
+                        const topVideos = document.getElementById('top-videos-container');
+                        if (topVideos) topVideos.style.display = 'none';
+                    }
+                    // SHOW_AUDIO_LINKS: if false, hide audio buttons (default: true)
+                    if (config.SHOW_AUDIO_LINKS === false) {
+                        const audioContainer = document.querySelector('.listen-btn-container');
+                        if (audioContainer) audioContainer.style.display = 'none';
+                    }
+                })
+                .catch(() => {
+                    // If config fetch fails, show everything (default behavior)
                 });
         })();
         </script>

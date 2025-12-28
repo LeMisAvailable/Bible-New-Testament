@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Configuration Editor - Admin</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #1e3a5f;
+            text-align: center;
+            border-bottom: 3px solid #c9a227;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .warning {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .credentials-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #1e3a5f;
+        }
+        .credentials-section h3 {
+            margin-top: 0;
+            color: #1e3a5f;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e3a5f;
+        }
+        .form-group small {
+            color: #666;
+            font-size: 12px;
+        }
+        .btn-load {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-load:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30,58,95,0.4);
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
+        }
+        .btn-save:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .config-section {
+            margin-top: 25px;
+        }
+        .config-section h3 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #c9a227;
+        }
+        .config-item:hover {
+            background: #e9ecef;
+        }
+        .config-info {
+            flex: 1;
+        }
+        .config-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e3a5f;
+            margin-bottom: 5px;
+        }
+        .config-description {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+        .config-toggle {
+            margin-left: 20px;
+        }
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .toggle-label {
+            display: block;
+            text-align: center;
+            margin-top: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+        }
+        .toggle-label.on {
+            color: #28a745;
+        }
+        .toggle-label.off {
+            color: #dc3545;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .info-box h4 {
+            margin: 0 0 10px 0;
+            color: #1565c0;
+        }
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .info-box code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Setup Configuration Editor</h1>
+
+        <div class="warning">
+            ADMIN ONLY - This page updates setup.json on GitHub
+        </div>
+
+        <div class="info-box">
+            <h4>About This Configuration</h4>
+            <p>
+                This editor controls display settings for chapter pages. Changes affect all 260+ chapter files.<br>
+                <strong>Note:</strong> If a setting is <code>true</code> or missing, the feature is shown. Set to <code>false</code> to hide.
+            </p>
+        </div>
+
+        <div class="credentials-section">
+            <h3>GitHub Credentials</h3>
+            <div class="form-group">
+                <label>GitHub Personal Access Token</label>
+                <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                <small>Generate at: GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic)</small>
+            </div>
+            <div class="form-group">
+                <label>Repository Owner (username or org)</label>
+                <input type="text" id="repo-owner" placeholder="your-username">
+            </div>
+            <div class="form-group">
+                <label>Repository Name</label>
+                <input type="text" id="repo-name" placeholder="your-repo-name">
+            </div>
+            <div class="form-group">
+                <label>Branch</label>
+                <input type="text" id="repo-branch" value="main">
+            </div>
+            <div class="form-group">
+                <label>File Path in Repository</label>
+                <input type="text" id="file-path" value="setup/setup.json">
+            </div>
+            <button class="btn-load" onclick="loadFromGitHub()">Load from GitHub</button>
+            <button class="btn-save" id="save-btn" onclick="saveToGitHub()" disabled>Save to GitHub</button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="config-section">
+            <h3>Configuration Settings</h3>
+            <div id="config-container">
+                <p style="color: #666; text-align: center;">Click "Load from GitHub" to load configuration</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let configData = {};
+        let fileSha = '';
+
+        // Define the configuration options with descriptions
+        const configDefinitions = {
+            'SHOW_AUDIO_LINKS': {
+                name: 'Show Audio Links',
+                description: 'Display the "Listen Now" audio buttons (Common Melody & Unique Melody) on chapter pages. When disabled, audio playback buttons will be hidden.'
+            },
+            'SHOW_VIDEO_LINKS_ON_TOP': {
+                name: 'Show Video Links on Top',
+                description: 'Display the two YouTube video embeds at the top of chapter pages. The bottom video carousel is always shown regardless of this setting.'
+            }
+        };
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        function getCredentials() {
+            return {
+                token: document.getElementById('github-token').value.trim(),
+                owner: document.getElementById('repo-owner').value.trim(),
+                repo: document.getElementById('repo-name').value.trim(),
+                branch: document.getElementById('repo-branch').value.trim(),
+                path: document.getElementById('file-path').value.trim()
+            };
+        }
+
+        async function loadFromGitHub() {
+            const creds = getCredentials();
+            if (!creds.token || !creds.owner || !creds.repo) {
+                showStatus('Please fill in all GitHub credentials', 'error');
+                return;
+            }
+
+            showStatus('Loading from GitHub...', 'loading');
+
+            try {
+                const url = `https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${creds.path}?ref=${creds.branch}`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${creds.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                fileSha = data.sha;
+
+                const content = atob(data.content);
+                configData = JSON.parse(content);
+
+                renderConfig();
+                document.getElementById('save-btn').disabled = false;
+                showStatus('Configuration loaded successfully!', 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function saveToGitHub() {
+            const creds = getCredentials();
+            if (!creds.token || !creds.owner || !creds.repo) {
+                showStatus('Please fill in all GitHub credentials', 'error');
+                return;
+            }
+
+            if (!fileSha) {
+                showStatus('Please load the file first', 'error');
+                return;
+            }
+
+            // Collect all values from toggles
+            Object.keys(configDefinitions).forEach(key => {
+                const toggle = document.getElementById('toggle-' + key);
+                if (toggle) {
+                    configData[key] = toggle.checked;
+                }
+            });
+
+            showStatus('Saving to GitHub...', 'loading');
+
+            try {
+                const content = JSON.stringify(configData, null, 2) + '\n';
+                const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+                const url = `https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${creds.path}`;
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${creds.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update setup.json via Admin Editor',
+                        content: encodedContent,
+                        sha: fileSha,
+                        branch: creds.branch
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `GitHub API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                fileSha = result.content.sha;
+                showStatus('Configuration saved successfully to GitHub!', 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        function renderConfig() {
+            const container = document.getElementById('config-container');
+            let html = '';
+
+            Object.keys(configDefinitions).forEach(key => {
+                const def = configDefinitions[key];
+                // Default to true if not set
+                const value = configData[key] !== false;
+                const labelClass = value ? 'on' : 'off';
+                const labelText = value ? 'ON' : 'OFF';
+
+                html += `
+                    <div class="config-item">
+                        <div class="config-info">
+                            <div class="config-name">${def.name}</div>
+                            <div class="config-description">${def.description}</div>
+                        </div>
+                        <div class="config-toggle">
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-${key}" ${value ? 'checked' : ''} onchange="updateToggleLabel('${key}')">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-label ${labelClass}" id="label-${key}">${labelText}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function updateToggleLabel(key) {
+            const toggle = document.getElementById('toggle-' + key);
+            const label = document.getElementById('label-' + key);
+            if (toggle && label) {
+                if (toggle.checked) {
+                    label.textContent = 'ON';
+                    label.className = 'toggle-label on';
+                } else {
+                    label.textContent = 'OFF';
+                    label.className = 'toggle-label off';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

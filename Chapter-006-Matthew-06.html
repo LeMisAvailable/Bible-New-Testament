@@ -135,7 +135,7 @@
 </head>
 <body>
     <div class="song-container">
-        <div class="video-container" style="text-align: center; margin-bottom: 20px;">
+        <div id="top-videos-container" class="video-container" style="text-align: center; margin-bottom: 20px;">
             <div id="top-videos" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
                 <iframe id="chapter-video-1" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
                 <iframe id="chapter-video-2" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
@@ -176,6 +176,28 @@
                         carousel.innerHTML = '<div class="carousel-item active"><iframe width="100%" height="200" src="https://www.youtube.com/embed/9jo51nJrO0k" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div><div class="carousel-item"><iframe width="100%" height="200" src="https://www.youtube.com/embed/Hfm94aHAbYQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div>';
                         document.getElementById('video-count').textContent = '1 / 2';
                     }
+                });        })();
+        </script>
+
+        <!-- Load setup configuration -->
+        <script>
+        (function() {
+            fetch('setup/setup.json?t=' + Date.now())
+                .then(response => response.json())
+                .then(config => {
+                    // SHOW_VIDEO_LINKS_ON_TOP: if false, hide top videos (default: true)
+                    if (config.SHOW_VIDEO_LINKS_ON_TOP === false) {
+                        const topVideos = document.getElementById('top-videos-container');
+                        if (topVideos) topVideos.style.display = 'none';
+                    }
+                    // SHOW_AUDIO_LINKS: if false, hide audio buttons (default: true)
+                    if (config.SHOW_AUDIO_LINKS === false) {
+                        const audioContainer = document.querySelector('.listen-btn-container');
+                        if (audioContainer) audioContainer.style.display = 'none';
+                    }
+                })
+                .catch(() => {
+                    // If config fetch fails, show everything (default behavior)
                 });
         })();
         </script>
@@ -198,10 +220,14 @@
         </div>
         <div id="audio-toast">We will make this audio available soon</div>
                 <script>
-        // Persistent Audio Controller
+        // Persistent Audio Controller with Parent-Iframe Communication
         const audioPlayer = document.getElementById('audio-player');
         let currentPlaying = -1;
-        
+        let currentTitle = '';
+
+        // Check if running inside an iframe
+        const isInIframe = window.parent !== window;
+
         const buttons = [
             { btn: document.getElementById('listen-btn-1'), icon: document.getElementById('play-icon-1'), text: document.getElementById('listen-text-1'), label: 'Listen Now (Common Melody)' },
             { btn: document.getElementById('listen-btn-2'), icon: document.getElementById('play-icon-2'), text: document.getElementById('listen-text-2'), label: 'Listen Now (Unique Melody)' }
@@ -216,6 +242,13 @@
             const m = Math.floor(sec / 60);
             const s = Math.floor(sec % 60);
             return m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        // Send message to parent window if in iframe
+        function notifyParent(type, data = {}) {
+            if (isInIframe) {
+                window.parent.postMessage({ type, ...data }, '*');
+            }
         }
 
         function showAudioToast() {
@@ -243,18 +276,21 @@
             const titleEl = document.getElementById('acb-title');
             const iconEl = document.getElementById('acb-play-icon');
             if (bar) bar.classList.add('visible');
-            if (titleEl && title) titleEl.textContent = title;
+            if (titleEl && title) {
+                titleEl.textContent = title;
+                currentTitle = title;
+            }
             if (iconEl) iconEl.innerHTML = isPlaying ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
         }
 
         function hideControlBar() {
             const bar = document.getElementById('audio-control-bar');
             if (bar) bar.classList.remove('visible');
+            notifyParent('audioStopped');
         }
 
         function saveAudioState() {
             const titleEl = document.getElementById('acb-title');
-            // Extract just the filename/path from the full URL
             let audioPath = '';
             if (audioPlayer.src && audioPlayer.src.includes('music/')) {
                 audioPath = 'music/' + audioPlayer.src.split('music/').pop();
@@ -271,26 +307,45 @@
             localStorage.setItem('audioState', JSON.stringify(state));
         }
 
+        // Completely stop and clean up audio player
+        function stopAudioCompletely() {
+            try {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+                audioPlayer.removeAttribute('src');
+                audioPlayer.load();
+            } catch (e) {}
+            resetAllButtons();
+            currentPlaying = -1;
+            hideControlBar();
+            localStorage.removeItem('audioState');
+        }
+
         function restoreAudioState() {
             const state = JSON.parse(localStorage.getItem('audioState') || '{}');
             if (state.audioPath && state.audioPath.startsWith('music/') && (state.isPlaying || state.isPaused)) {
                 audioPlayer.src = state.audioPath;
                 audioPlayer.currentTime = state.currentTime || 0;
                 currentPlaying = state.melodyIndex;
+                currentTitle = state.title;
                 updateControlBarUI(state.title, state.isPlaying);
-                
+
+                // Notify parent that audio state is being restored
+                notifyParent('audioStateRestored', { title: state.title, isPlaying: state.isPlaying });
+
                 if (state.isPlaying) {
                     audioPlayer.play().catch((e) => {
                         console.log('Audio autoplay blocked, showing paused state');
                         updateControlBarUI(state.title, false);
+                        notifyParent('audioStateRestored', { title: state.title, isPlaying: false });
                     });
                 }
-                
+
                 if (state.chapter === getChapterName() && state.melodyIndex >= 0) {
                     if (buttons[currentPlaying] && buttons[currentPlaying].btn) {
                         buttons[currentPlaying].btn.classList.add('playing');
                         buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                        buttons[currentPlaying].text.textContent = 'Pause';
+                        buttons[currentPlaying].text.textContent = buttons[currentPlaying].label.replace('Listen Now', 'Pause Now');
                     }
                 }
             }
@@ -307,30 +362,24 @@
                     audioPlayer.play();
                     buttons[index].btn.classList.add('playing');
                     buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                    buttons[index].text.textContent = 'Pause';
+                    buttons[index].text.textContent = buttons[index].label.replace('Listen Now', 'Pause Now');
                     updateControlBarUI(null, true);
+                    notifyParent('audioResumed');
                 } else {
                     audioPlayer.pause();
                     buttons[index].btn.classList.remove('playing');
                     buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
                     buttons[index].text.textContent = buttons[index].label;
                     updateControlBarUI(null, false);
+                    notifyParent('audioPaused');
                 }
                 saveAudioState();
                 return;
             }
-            
-            // Gracefully stop any currently playing audio
-            try {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                audioPlayer.removeAttribute('src');
-                audioPlayer.load();
-            } catch (e) {}
-            resetAllButtons();
-            currentPlaying = -1;
-            localStorage.removeItem('audioState');
-            
+
+            // IMPORTANT: Stop any currently playing audio COMPLETELY before starting new
+            stopAudioCompletely();
+
             try {
                 const response = await fetch('setup/audiolinks.json?t=' + Date.now());
                 const audiolinks = await response.json();
@@ -347,13 +396,16 @@
                             audioPlayer.currentTime = 0;
                             audioPlayer.play();
                             currentPlaying = index;
-                            
+
                             buttons[index].btn.classList.add('playing');
                             buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                            buttons[index].text.textContent = 'Pause';
-                            
+                            buttons[index].text.textContent = buttons[index].label.replace('Listen Now', 'Pause Now');
+
                             const melodyType = index === 0 ? 'Common' : 'Unique';
-                            updateControlBarUI(chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')', true);
+                            const title = chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')';
+                            currentTitle = title;
+                            updateControlBarUI(title, true);
+                            notifyParent('audioStarted', { title });
                             saveAudioState();
                             return;
                         }
@@ -367,14 +419,16 @@
             if (audioPlayer.paused) {
                 audioPlayer.play();
                 updateControlBarUI(null, true);
+                notifyParent('audioResumed');
                 if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
                     buttons[currentPlaying].btn.classList.add('playing');
                     buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                    buttons[currentPlaying].text.textContent = 'Pause';
+                    buttons[currentPlaying].text.textContent = buttons[currentPlaying].label.replace('Listen Now', 'Pause Now');
                 }
             } else {
                 audioPlayer.pause();
                 updateControlBarUI(null, false);
+                notifyParent('audioPaused');
                 if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
                     buttons[currentPlaying].btn.classList.remove('playing');
                     buttons[currentPlaying].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
@@ -385,16 +439,7 @@
         }
 
         function acbStop() {
-            try {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                audioPlayer.removeAttribute('src');
-                audioPlayer.load();
-            } catch (e) {}
-            hideControlBar();
-            resetAllButtons();
-            currentPlaying = -1;
-            localStorage.removeItem('audioState');
+            stopAudioCompletely();
         }
 
         function acbSkip(seconds) {
@@ -416,6 +461,11 @@
             if (seek && audioPlayer.duration) {
                 seek.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             }
+            // Send time updates to parent
+            notifyParent('audioTimeUpdate', {
+                currentTime: audioPlayer.currentTime,
+                duration: audioPlayer.duration || 0
+            });
         });
 
         audioPlayer.addEventListener('loadedmetadata', () => {
@@ -427,11 +477,33 @@
             resetAllButtons();
             currentPlaying = -1;
             updateControlBarUI(null, false);
+            notifyParent('audioEnded');
             localStorage.removeItem('audioState');
         });
 
         audioPlayer.addEventListener('play', () => saveAudioState());
         audioPlayer.addEventListener('pause', () => saveAudioState());
+
+        // Listen for commands from parent window (when in iframe)
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            if (!data || !data.action) return;
+
+            switch (data.action) {
+                case 'togglePlay':
+                    acbTogglePlay();
+                    break;
+                case 'stop':
+                    acbStop();
+                    break;
+                case 'skip':
+                    acbSkip(data.seconds || 0);
+                    break;
+                case 'seek':
+                    acbSeek(data.value || 0);
+                    break;
+            }
+        });
 
         window.addEventListener('beforeunload', saveAudioState);
 
