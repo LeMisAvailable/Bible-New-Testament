@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Links Editor - Admin</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #8b0000;
+            text-align: center;
+            border-bottom: 3px solid #c9a227;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .warning {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .credentials-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #8b0000;
+        }
+        .credentials-section h3 {
+            margin-top: 0;
+            color: #8b0000;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #8b0000;
+        }
+        .form-group small {
+            color: #666;
+            font-size: 12px;
+        }
+        .btn-load {
+            background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-load:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139,0,0,0.4);
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
+        }
+        .btn-save:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .entries-section {
+            margin-top: 25px;
+        }
+        .entries-section h3 {
+            color: #8b0000;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #8b0000;
+        }
+        .entry-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .entry-row:hover {
+            background: #e9ecef;
+        }
+        .entry-key {
+            min-width: 320px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #8b0000;
+        }
+        .entry-value {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .entry-value input {
+            width: 140px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        .entry-value input:focus {
+            outline: none;
+            border-color: #8b0000;
+        }
+        .entry-value label {
+            font-size: 10px;
+            color: #666;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .video-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+        .entry-count {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .video-labels {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-left: 330px;
+        }
+        .video-labels span {
+            width: 140px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Video Links Editor</h1>
+
+        <div class="warning">
+            ADMIN ONLY - This page updates videolinks.json on GitHub
+        </div>
+
+        <div class="credentials-section">
+            <h3>GitHub Credentials</h3>
+            <div class="form-group">
+                <label>GitHub Personal Access Token</label>
+                <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                <small>Generate at: GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic)</small>
+            </div>
+            <div class="form-group">
+                <label>Repository Owner (username or org)</label>
+                <input type="text" id="repo-owner" placeholder="your-username">
+            </div>
+            <div class="form-group">
+                <label>Repository Name</label>
+                <input type="text" id="repo-name" placeholder="your-repo-name">
+            </div>
+            <div class="form-group">
+                <label>Branch</label>
+                <input type="text" id="repo-branch" value="main">
+            </div>
+            <div class="form-group">
+                <label>File Path in Repository</label>
+                <input type="text" id="file-path" value="setup/videolinks.json">
+            </div>
+            <button class="btn-load" onclick="loadFromGitHub()">Load from GitHub</button>
+            <button class="btn-save" id="save-btn" onclick="saveToGitHub()" disabled>Save to GitHub</button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="entries-section">
+            <h3>YouTube Video IDs</h3>
+            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                Enter YouTube video IDs (the part after v= in YouTube URLs). Each entry supports up to 4 videos for carousel display.
+            </p>
+            <input type="text" class="search-box" id="search-box" placeholder="Search by chapter/spotlight name..." oninput="filterEntries()">
+            <div class="entry-count" id="entry-count"></div>
+            <div class="video-labels" id="video-labels" style="display: none;">
+                <span>Video 1 (Top Left)</span>
+                <span>Video 2 (Top Right)</span>
+                <span>Video 3 (Carousel)</span>
+                <span>Video 4 (Carousel)</span>
+            </div>
+            <div id="entries-container">
+                <p style="color: #666; text-align: center;">Click "Load from GitHub" to load entries</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let videoData = {};
+        let fileSha = '';
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        function getCredentials() {
+            return {
+                token: document.getElementById('github-token').value.trim(),
+                owner: document.getElementById('repo-owner').value.trim(),
+                repo: document.getElementById('repo-name').value.trim(),
+                branch: document.getElementById('repo-branch').value.trim(),
+                path: document.getElementById('file-path').value.trim()
+            };
+        }
+
+        async function loadFromGitHub() {
+            const creds = getCredentials();
+            if (!creds.token || !creds.owner || !creds.repo) {
+                showStatus('Please fill in all GitHub credentials', 'error');
+                return;
+            }
+
+            showStatus('Loading from GitHub...', 'loading');
+
+            try {
+                const url = `https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${creds.path}?ref=${creds.branch}`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${creds.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                fileSha = data.sha;
+
+                const content = atob(data.content);
+                videoData = JSON.parse(content);
+
+                renderEntries();
+                document.getElementById('save-btn').disabled = false;
+                document.getElementById('video-labels').style.display = 'flex';
+                showStatus(`Loaded ${Object.keys(videoData).length} entries successfully!`, 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function saveToGitHub() {
+            const creds = getCredentials();
+            if (!creds.token || !creds.owner || !creds.repo) {
+                showStatus('Please fill in all GitHub credentials', 'error');
+                return;
+            }
+
+            if (!fileSha) {
+                showStatus('Please load the file first', 'error');
+                return;
+            }
+
+            // Collect all values from inputs
+            const entries = document.querySelectorAll('.entry-row');
+            entries.forEach(row => {
+                const key = row.dataset.key;
+                const inputs = row.querySelectorAll('.video-id');
+                const values = Array.from(inputs).map(input => input.value.trim()).filter(v => v);
+                if (values.length > 0) {
+                    videoData[key] = values.join(' ');
+                }
+            });
+
+            showStatus('Saving to GitHub...', 'loading');
+
+            try {
+                const content = JSON.stringify(videoData, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+                const url = `https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${creds.path}`;
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${creds.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update videolinks.json via Admin Editor',
+                        content: encodedContent,
+                        sha: fileSha,
+                        branch: creds.branch
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `GitHub API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                fileSha = result.content.sha;
+                showStatus('Saved successfully to GitHub!', 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        function renderEntries() {
+            const container = document.getElementById('entries-container');
+            const keys = Object.keys(videoData).sort();
+
+            let html = '';
+            keys.forEach(key => {
+                const value = videoData[key];
+                const videos = value.split(' ');
+                const v1 = videos[0] || '';
+                const v2 = videos[1] || '';
+                const v3 = videos[2] || '';
+                const v4 = videos[3] || '';
+
+                html += `
+                    <div class="entry-row" data-key="${key}">
+                        <div class="entry-key">${key}</div>
+                        <div class="entry-value">
+                            <input type="text" class="video-id" value="${v1}" placeholder="Video ID 1">
+                            <input type="text" class="video-id" value="${v2}" placeholder="Video ID 2">
+                            <input type="text" class="video-id" value="${v3}" placeholder="Video ID 3">
+                            <input type="text" class="video-id" value="${v4}" placeholder="Video ID 4">
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('entry-count').textContent = `Total: ${keys.length} entries`;
+        }
+
+        function filterEntries() {
+            const searchTerm = document.getElementById('search-box').value.toLowerCase();
+            const rows = document.querySelectorAll('.entry-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const key = row.dataset.key.toLowerCase();
+                if (key.includes(searchTerm)) {
+                    row.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('entry-count').textContent = `Showing: ${visibleCount} of ${rows.length} entries`;
+        }
+    </script>
+</body>
+</html>

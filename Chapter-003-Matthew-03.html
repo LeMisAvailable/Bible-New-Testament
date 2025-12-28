@@ -253,11 +253,16 @@
 
         function saveAudioState() {
             const titleEl = document.getElementById('acb-title');
+            // Extract just the filename/path from the full URL
+            let audioPath = '';
+            if (audioPlayer.src && audioPlayer.src.includes('music/')) {
+                audioPath = 'music/' + audioPlayer.src.split('music/').pop();
+            }
             const state = {
-                src: audioPlayer.src,
+                audioPath: audioPath,
                 currentTime: audioPlayer.currentTime,
-                isPlaying: !audioPlayer.paused,
-                isPaused: audioPlayer.paused && audioPlayer.currentTime > 0,
+                isPlaying: !audioPlayer.paused && audioPath !== '',
+                isPaused: audioPlayer.paused && audioPlayer.currentTime > 0 && audioPath !== '',
                 title: titleEl ? titleEl.textContent : '',
                 chapter: getChapterName(),
                 melodyIndex: currentPlaying
@@ -267,17 +272,20 @@
 
         function restoreAudioState() {
             const state = JSON.parse(localStorage.getItem('audioState') || '{}');
-            if (state.src && (state.isPlaying || state.isPaused)) {
-                audioPlayer.src = state.src;
+            if (state.audioPath && state.audioPath.startsWith('music/') && (state.isPlaying || state.isPaused)) {
+                audioPlayer.src = state.audioPath;
                 audioPlayer.currentTime = state.currentTime || 0;
+                currentPlaying = state.melodyIndex;
                 updateControlBarUI(state.title, state.isPlaying);
                 
                 if (state.isPlaying) {
-                    audioPlayer.play().catch(() => {});
+                    audioPlayer.play().catch((e) => {
+                        console.log('Audio autoplay blocked, showing paused state');
+                        updateControlBarUI(state.title, false);
+                    });
                 }
                 
                 if (state.chapter === getChapterName() && state.melodyIndex >= 0) {
-                    currentPlaying = state.melodyIndex;
                     if (buttons[currentPlaying] && buttons[currentPlaying].btn) {
                         buttons[currentPlaying].btn.classList.add('playing');
                         buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
@@ -287,9 +295,13 @@
             }
         }
 
+        function hasValidAudioSrc() {
+            return audioPlayer.src && audioPlayer.src.includes('music/') && !audioPlayer.src.endsWith('/');
+        }
+
         async function playAudio(index) {
-            // If same button clicked and audio is playing, toggle pause
-            if (currentPlaying === index && audioPlayer.src) {
+            // If same button clicked and audio has valid source, toggle pause
+            if (currentPlaying === index && hasValidAudioSrc()) {
                 if (audioPlayer.paused) {
                     audioPlayer.play();
                     buttons[index].btn.classList.add('playing');
@@ -311,7 +323,8 @@
             try {
                 audioPlayer.pause();
                 audioPlayer.currentTime = 0;
-                audioPlayer.src = '';
+                audioPlayer.removeAttribute('src');
+                audioPlayer.load();
             } catch (e) {}
             resetAllButtons();
             currentPlaying = -1;
