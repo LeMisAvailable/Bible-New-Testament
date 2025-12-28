@@ -27,7 +27,12 @@
             --radius-lg: 20px;
         }
 
-        html { overscroll-behavior: none; height: 100%; }
+        html {
+            overscroll-behavior: none;
+            height: 100%;
+            /* iOS Safari: ensure scroll is enabled */
+            -webkit-overflow-scrolling: touch;
+        }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -39,6 +44,9 @@
             color: var(--text-dark);
             line-height: 1.6;
             overscroll-behavior-y: none;
+            /* iOS Safari: ensure scroll works after navigation */
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
         }
 
         /* Hamburger Menu Button */
@@ -2512,6 +2520,60 @@
         const chapterIframe = document.getElementById('chapterIframe');
         const mainContent = document.getElementById('mainContent');
 
+        // iOS Safari scroll fix - forces scroll recalculation after display toggle
+        function forceIOSScrollFix() {
+            // Only apply fix on iOS devices
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+            // Store current scroll position
+            const scrollY = window.scrollY;
+
+            // Force body and html to be scrollable
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.height = '';
+            document.body.style.width = '';
+            document.body.style.top = '';
+            document.documentElement.style.overflow = '';
+            document.documentElement.style.position = '';
+
+            // Force a reflow by reading a layout property
+            void document.body.offsetHeight;
+
+            if (isIOS) {
+                // iOS Safari specific fix: temporarily change touch-action
+                const originalTouchAction = document.body.style.touchAction;
+                document.body.style.touchAction = 'auto';
+
+                // Toggle -webkit-overflow-scrolling
+                document.body.style.webkitOverflowScrolling = 'auto';
+
+                // Force mainContent to use hardware acceleration briefly
+                mainContent.style.transform = 'translateZ(0)';
+                mainContent.style.webkitTransform = 'translateZ(0)';
+
+                // Use setTimeout for iOS Safari (needs more time than requestAnimationFrame)
+                setTimeout(() => {
+                    document.body.style.touchAction = originalTouchAction || '';
+                    document.body.style.webkitOverflowScrolling = 'touch';
+                    mainContent.style.transform = '';
+                    mainContent.style.webkitTransform = '';
+
+                    // Trigger scroll to wake up iOS Safari
+                    window.scrollTo(0, 0);
+                    setTimeout(() => {
+                        window.scrollTo(0, scrollY);
+                    }, 10);
+                }, 50);
+            } else {
+                // Non-iOS: simple reflow
+                requestAnimationFrame(() => {
+                    window.scrollTo(0, scrollY);
+                });
+            }
+        }
+
         // Check for chapter parameter on page load
         function loadChapterFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -2540,10 +2602,14 @@
             } else {
                 // Show main content
                 chapterFrame.style.display = 'none';
+                // Clear iframe src to release any touch event capture (iOS Safari fix)
+                chapterIframe.src = 'about:blank';
                 mainContent.style.display = 'block';
                 document.body.classList.remove('chapter-view');
                 // Reset body overflow - only lock on mobile with sidebar open
                 document.body.style.overflow = (sidebar.classList.contains('active') && window.innerWidth <= 768) ? 'hidden' : '';
+                // Fix iOS Safari scroll freeze
+                forceIOSScrollFix();
             }
         }
 
@@ -2569,6 +2635,8 @@
                     if (isIntro) {
                         // Hide chapter frame, show main content
                         chapterFrame.style.display = 'none';
+                        // Clear iframe src to release any touch event capture (iOS Safari fix)
+                        chapterIframe.src = 'about:blank';
                         mainContent.style.display = 'block';
                         document.body.classList.remove('chapter-view');
                         chapterFrame.style.left = '0';
@@ -2577,6 +2645,8 @@
                         document.body.style.overflow = (sidebar.classList.contains('active') && window.innerWidth <= 768) ? 'hidden' : '';
                         // Update URL without reload
                         window.history.pushState({}, '', 'index.html');
+                        // Fix iOS Safari scroll freeze
+                        forceIOSScrollFix();
                     } else {
                         // Extract chapter name from href (e.g., "index.html?chapter=Chapter-001-Matthew-01")
                         const urlParams = new URLSearchParams(href.split('?')[1]);
@@ -2705,6 +2775,8 @@
                 overlay.classList.remove('active');
                 // Reset body overflow when returning to main content
                 document.body.style.overflow = '';
+                // Fix iOS Safari scroll freeze
+                forceIOSScrollFix();
             }
         });
 
