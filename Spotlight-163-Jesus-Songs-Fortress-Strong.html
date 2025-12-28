@@ -21,6 +21,15 @@
         .carousel-item { display: none; }
         .carousel-item.active { display: block; }
         .intro { background: linear-gradient(135deg, #2d5016 0%, #4a7c23 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
+
+        .listen-btn { display: inline-flex; align-items: center; gap: 8px; margin: 15px auto; padding: 14px 28px; background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%); color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1em; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30,58,95,0.3); }
+        .listen-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(30,58,95,0.4); background: linear-gradient(135deg, #2d5a8c 0%, #3d6a9c 100%); }
+        .listen-btn:active { transform: translateY(0); }
+        .listen-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .listen-btn.playing { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
+        .listen-btn-container { text-align: center; margin: 20px 0; }
+        #audio-toast { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 9999; font-size: 0.9em; text-align: center; max-width: 90%; }
+        #audio-player { display: none; }
     </style>
 </head>
 <body>
@@ -35,7 +44,7 @@
         <script>
         (function() {
             const chapterName = window.location.pathname.split('/').pop().replace('.html', '');
-            fetch('videolinks.json')
+            fetch('setup/videolinks.json')
                 .then(response => response.json())
                 .then(data => {
                     const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
@@ -73,6 +82,73 @@
         <h1>Fortress Strong</h1>
         <p class="subtitle">A Song of Divine Protection (Psalm 18:2)</p>
         <p class="duration">Duration: ~3 minutes | Style: Worship Anthem</p>
+
+        <div class="listen-btn-container">
+            <button class="listen-btn" onclick="playAudio()">
+                <svg viewBox="0 0 24 24" id="play-icon"><path d="M8 5v14l11-7z"/></svg>
+                <span id="listen-text">Listen Now</span>
+            </button>
+            <audio id="audio-player"></audio>
+        </div>
+        <div id="audio-toast">We will make this audio available soon</div>
+        <script>
+        let isPlaying = false;
+        const audioPlayer = document.getElementById('audio-player');
+        const listenBtn = document.querySelector('.listen-btn');
+        const playIcon = document.getElementById('play-icon');
+        const listenText = document.getElementById('listen-text');
+
+        function getChapterName() {
+            return window.location.pathname.split('/').pop().replace('.html', '');
+        }
+
+        function showAudioToast() {
+            const toast = document.getElementById('audio-toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        async function playAudio() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+                listenBtn.classList.remove('playing');
+                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                listenText.textContent = 'Listen Now';
+                return;
+            }
+            try {
+                const response = await fetch('setup/audiolinks.json');
+                const audiolinks = await response.json();
+                const chapterName = getChapterName();
+                const audioFile = audiolinks[chapterName];
+                if (audioFile && audioFile !== 'sample-audio-file.wav') {
+                    const audioPath = 'music/' + audioFile;
+                    const checkResponse = await fetch(audioPath, { method: 'HEAD' });
+                    if (checkResponse.ok) {
+                        audioPlayer.src = audioPath;
+                        audioPlayer.play();
+                        isPlaying = true;
+                        listenBtn.classList.add('playing');
+                        playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                        listenText.textContent = 'Pause';
+                        return;
+                    }
+                }
+                showAudioToast();
+            } catch (e) { showAudioToast(); }
+        }
+
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            listenBtn.classList.remove('playing');
+            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            listenText.textContent = 'Listen Now';
+        });
+        </script>
+
+
+
 
         <h2>[Intro]</h2>
         <div class="intro">
@@ -150,7 +226,7 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
         </div>
 
         
-        <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
+        <button class="copy-btn" onclick="copySunoFormat()">Copy Lyrics</button>
         <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Church Choir Organ, Worship Anthem, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
 
         <script>
@@ -179,7 +255,7 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
                 btn.textContent = 'Copied!';
                 btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.textContent = 'Copy';
+                    btn.textContent = 'Copy Lyrics';
                     btn.classList.remove('copied');
                 }, 2000);
             });
