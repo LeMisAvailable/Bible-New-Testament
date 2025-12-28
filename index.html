@@ -114,7 +114,9 @@
             background: linear-gradient(180deg, #0a1628 0%, #0f2744 100%);
             z-index: 1000;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 20px));
             box-shadow: 4px 0 30px rgba(0,0,0,0.4);
         }
         .sidebar.active {
@@ -160,6 +162,7 @@
         /* Sidebar Navigation */
         .sidebar-nav {
             padding: 8px 0;
+            padding-bottom: 120px; /* Extra space for iOS bounce */
         }
         .sidebar-book {
             border-bottom: 1px solid rgba(255,255,255,0.04);
