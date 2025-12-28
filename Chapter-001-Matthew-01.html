@@ -196,17 +196,11 @@
             <audio id="audio-player"></audio>
         </div>
         <div id="audio-toast">We will make this audio available soon</div>
-        <script>
+                <script>
         // Persistent Audio Controller
         const audioPlayer = document.getElementById('audio-player');
-        const controlBar = document.getElementById('audio-control-bar');
-        const acbTitle = document.getElementById('acb-title');
-        const acbCurrent = document.getElementById('acb-current');
-        const acbDuration = document.getElementById('acb-duration');
-        const acbSeekBar = document.getElementById('acb-seek');
-        const acbPlayIcon = document.getElementById('acb-play-icon');
-
         let currentPlaying = -1;
+        
         const buttons = [
             { btn: document.getElementById('listen-btn-1'), icon: document.getElementById('play-icon-1'), text: document.getElementById('listen-text-1'), label: 'Listen Now (Common Melody)' },
             { btn: document.getElementById('listen-btn-2'), icon: document.getElementById('play-icon-2'), text: document.getElementById('listen-text-2'), label: 'Listen Now (Unique Melody)' }
@@ -225,8 +219,10 @@
 
         function showAudioToast() {
             const toast = document.getElementById('audio-toast');
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            if (toast) {
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            }
         }
 
         function resetButton(index) {
@@ -241,44 +237,45 @@
             buttons.forEach((b, i) => resetButton(i));
         }
 
-        function updateControlBar() {
-            const state = JSON.parse(localStorage.getItem('audioState') || '{}');
-            if (state.src && (state.isPlaying || state.isPaused)) {
-                controlBar.classList.add('visible');
-                acbTitle.textContent = state.title || 'Unknown';
-                acbPlayIcon.innerHTML = state.isPlaying ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
-            } else {
-                controlBar.classList.remove('visible');
-            }
+        function updateControlBarUI(title, isPlaying) {
+            const bar = document.getElementById('audio-control-bar');
+            const titleEl = document.getElementById('acb-title');
+            const iconEl = document.getElementById('acb-play-icon');
+            if (bar) bar.classList.add('visible');
+            if (titleEl && title) titleEl.textContent = title;
+            if (iconEl) iconEl.innerHTML = isPlaying ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+        }
+
+        function hideControlBar() {
+            const bar = document.getElementById('audio-control-bar');
+            if (bar) bar.classList.remove('visible');
         }
 
         function saveAudioState() {
+            const titleEl = document.getElementById('acb-title');
             const state = {
                 src: audioPlayer.src,
                 currentTime: audioPlayer.currentTime,
                 isPlaying: !audioPlayer.paused,
                 isPaused: audioPlayer.paused && audioPlayer.currentTime > 0,
-                title: acbTitle.textContent,
+                title: titleEl ? titleEl.textContent : '',
                 chapter: getChapterName(),
                 melodyIndex: currentPlaying
             };
             localStorage.setItem('audioState', JSON.stringify(state));
         }
 
-        // Restore audio state on page load
         function restoreAudioState() {
             const state = JSON.parse(localStorage.getItem('audioState') || '{}');
             if (state.src && (state.isPlaying || state.isPaused)) {
                 audioPlayer.src = state.src;
                 audioPlayer.currentTime = state.currentTime || 0;
-                acbTitle.textContent = state.title || 'Unknown';
-                controlBar.classList.add('visible');
+                updateControlBarUI(state.title, state.isPlaying);
                 
                 if (state.isPlaying) {
                     audioPlayer.play().catch(() => {});
                 }
                 
-                // Update button state if on same chapter
                 if (state.chapter === getChapterName() && state.melodyIndex >= 0) {
                     currentPlaying = state.melodyIndex;
                     if (buttons[currentPlaying] && buttons[currentPlaying].btn) {
@@ -295,12 +292,10 @@
             try {
                 audioPlayer.pause();
                 audioPlayer.currentTime = 0;
-                audioPlayer.src = '';  // Release audio resource
-            } catch (e) { /* ignore cleanup errors */ }
+                audioPlayer.src = '';
+            } catch (e) {}
             resetAllButtons();
             currentPlaying = -1;
-            
-            // Clear old state
             localStorage.removeItem('audioState');
             
             try {
@@ -320,17 +315,12 @@
                             audioPlayer.play();
                             currentPlaying = index;
                             
-                            // Update button
                             buttons[index].btn.classList.add('playing');
                             buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
                             buttons[index].text.textContent = 'Pause';
                             
-                            // Update control bar
                             const melodyType = index === 0 ? 'Common' : 'Unique';
-                            acbTitle.textContent = chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')';
-                            controlBar.classList.add('visible');
-                            acbPlayIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                            
+                            updateControlBarUI(chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')', true);
                             saveAudioState();
                             return;
                         }
@@ -340,20 +330,19 @@
             } catch (e) { showAudioToast(); }
         }
 
-        // Control bar functions
         function acbTogglePlay() {
             if (audioPlayer.paused) {
                 audioPlayer.play();
-                acbPlayIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                if (currentPlaying >= 0 && buttons[currentPlaying]) {
+                updateControlBarUI(null, true);
+                if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
                     buttons[currentPlaying].btn.classList.add('playing');
                     buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
                     buttons[currentPlaying].text.textContent = 'Pause';
                 }
             } else {
                 audioPlayer.pause();
-                acbPlayIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-                if (currentPlaying >= 0 && buttons[currentPlaying]) {
+                updateControlBarUI(null, false);
+                if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
                     buttons[currentPlaying].btn.classList.remove('playing');
                     buttons[currentPlaying].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
                     buttons[currentPlaying].text.textContent = buttons[currentPlaying].label;
@@ -367,9 +356,9 @@
                 audioPlayer.pause();
                 audioPlayer.currentTime = 0;
                 audioPlayer.removeAttribute('src');
-                audioPlayer.load();  // Force release of audio resources
-            } catch (e) { /* ignore cleanup errors */ }
-            controlBar.classList.remove('visible');
+                audioPlayer.load();
+            } catch (e) {}
+            hideControlBar();
             resetAllButtons();
             currentPlaying = -1;
             localStorage.removeItem('audioState');
@@ -387,32 +376,32 @@
             }
         }
 
-        // Audio event listeners
         audioPlayer.addEventListener('timeupdate', () => {
-            acbCurrent.textContent = formatTime(audioPlayer.currentTime);
-            if (audioPlayer.duration) {
-                acbSeekBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            const cur = document.getElementById('acb-current');
+            const seek = document.getElementById('acb-seek');
+            if (cur) cur.textContent = formatTime(audioPlayer.currentTime);
+            if (seek && audioPlayer.duration) {
+                seek.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             }
         });
 
         audioPlayer.addEventListener('loadedmetadata', () => {
-            acbDuration.textContent = formatTime(audioPlayer.duration);
+            const dur = document.getElementById('acb-duration');
+            if (dur) dur.textContent = formatTime(audioPlayer.duration);
         });
 
         audioPlayer.addEventListener('ended', () => {
             resetAllButtons();
             currentPlaying = -1;
-            acbPlayIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            updateControlBarUI(null, false);
             localStorage.removeItem('audioState');
         });
 
         audioPlayer.addEventListener('play', () => saveAudioState());
         audioPlayer.addEventListener('pause', () => saveAudioState());
 
-        // Save state before leaving page
         window.addEventListener('beforeunload', saveAudioState);
 
-        // Restore state on page load
         document.addEventListener('DOMContentLoaded', restoreAudioState);
         if (document.readyState === 'complete') restoreAudioState();
         </script>
