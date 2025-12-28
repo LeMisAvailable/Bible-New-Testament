@@ -426,6 +426,49 @@
             font-size: 0.9em;
         }
 
+        /* Show All Songs Toggle Button */
+        .toggle-songs-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+        .toggle-songs-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .toggle-songs-btn .arrow {
+            display: inline-block;
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+        .toggle-songs-btn.expanded .arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Songs Container - hidden by default */
+        .all-songs-container {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .all-songs-container.visible {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .footer {
             text-align: center;
             margin-top: 56px;
@@ -1650,6 +1693,14 @@
                 <input type="text" id="searchInput" placeholder="Search for a chapter or theme..." onkeyup="filterSongs()">
             </div>
 
+            <!-- Toggle Button for All Songs -->
+            <button class="toggle-songs-btn" id="toggleSongsBtn" onclick="toggleAllSongs()">
+                Show All Songs <span class="arrow">&#9660;</span>
+            </button>
+
+            <!-- All Songs Container - Hidden by Default -->
+            <div class="all-songs-container" id="allSongsContainer">
+
             <!-- MATTHEW -->
             <div class="book-section" id="matthew">
                 <h2>Matthew (28 Chapters)</h2>
@@ -2464,6 +2515,8 @@
                 </div>
             </div>
 
+            </div><!-- End of all-songs-container -->
+
             <div class="footer">
                 <p><em>"Your word is a lamp for my feet, a light on my path." — Psalm 119:105</em></p>
 
@@ -2853,6 +2906,15 @@
         function filterSongs() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const links = document.querySelectorAll('.song-link');
+            const container = document.getElementById('allSongsContainer');
+            const btn = document.getElementById('toggleSongsBtn');
+
+            // Auto-expand when user starts searching
+            if (input.length > 0 && !container.classList.contains('visible')) {
+                container.classList.add('visible');
+                btn.classList.add('expanded');
+                btn.innerHTML = 'Hide All Songs <span class="arrow">&#9660;</span>';
+            }
 
             links.forEach(link => {
                 const text = link.textContent.toLowerCase();
@@ -2865,6 +2927,24 @@
                     link.style.display = 'none';
                 }
             });
+        }
+
+        // Toggle All Songs visibility
+        function toggleAllSongs() {
+            const container = document.getElementById('allSongsContainer');
+            const btn = document.getElementById('toggleSongsBtn');
+
+            if (container.classList.contains('visible')) {
+                // Hide songs
+                container.classList.remove('visible');
+                btn.classList.remove('expanded');
+                btn.innerHTML = 'Show All Songs <span class="arrow">&#9660;</span>';
+            } else {
+                // Show songs
+                container.classList.add('visible');
+                btn.classList.add('expanded');
+                btn.innerHTML = 'Hide All Songs <span class="arrow">&#9660;</span>';
+            }
         }
 
         // Handle touch events for mobile
@@ -2928,6 +3008,71 @@
         // Audio persists across iframe navigation
         const parentAudio = document.getElementById('parent-audio-player');
         let currentAudioTitle = '';
+        let sortedPlaylist = []; // Sorted list of all audio files for auto-play
+
+        // Load and build sorted playlist from audiolinks.json
+        async function loadPlaylist() {
+            try {
+                const response = await fetch('setup/audiolinks.json?t=' + Date.now());
+                const audiolinks = await response.json();
+                const audioSet = new Set();
+
+                // Extract all unique audio files (excluding sample files)
+                Object.values(audiolinks).forEach(files => {
+                    if (files && files !== 'sample-audio-file.wav sample-audio-file.wav') {
+                        files.split(' ').forEach(file => {
+                            if (file && file !== 'sample-audio-file.wav' && file.endsWith('.mp3')) {
+                                audioSet.add(file);
+                            }
+                        });
+                    }
+                });
+
+                // Sort by filename in ascending order
+                sortedPlaylist = Array.from(audioSet).sort((a, b) => a.localeCompare(b));
+                console.log('Playlist loaded:', sortedPlaylist.length, 'songs');
+            } catch (e) {
+                console.log('Failed to load playlist:', e);
+                sortedPlaylist = [];
+            }
+        }
+
+        // Find and play the next song in the playlist
+        function playNextSong() {
+            if (sortedPlaylist.length === 0) return;
+
+            // Get current audio filename
+            const currentSrc = parentAudio.src || '';
+            const currentFile = currentSrc.includes('music/') ? currentSrc.split('music/').pop() : '';
+
+            // Find current song index
+            let currentIndex = sortedPlaylist.findIndex(file => file === currentFile);
+
+            // Get next song (loop to beginning if at end)
+            let nextIndex = (currentIndex + 1) % sortedPlaylist.length;
+            const nextFile = sortedPlaylist[nextIndex];
+
+            if (nextFile) {
+                const nextPath = 'music/' + nextFile;
+                // Extract title from filename (e.g., "Chapter-001-Matthew-01_v1-..." -> "Chapter 001 Matthew 01")
+                const titleMatch = nextFile.match(/^([^_]+)/);
+                const nextTitle = titleMatch ? titleMatch[1].replace(/-/g, ' ') : nextFile;
+
+                parentAudio.src = nextPath;
+                parentAudio.currentTime = 0;
+                parentAudio.play().then(() => {
+                    updateControlBarUI(nextTitle, true);
+                    saveParentAudioState();
+                    // Notify iframe of the new song
+                    notifyIframe({ type: 'parentAudioChanged', title: nextTitle, audioPath: nextPath });
+                }).catch(e => {
+                    console.log('Auto-play next failed:', e);
+                });
+            }
+        }
+
+        // Load playlist on page load
+        loadPlaylist();
 
         function formatTime(sec) {
             if (isNaN(sec)) return '0:00';
@@ -3029,6 +3174,8 @@
             updateControlBarUI(null, false);
             saveParentAudioState();
             notifyIframe({ type: 'parentAudioEnded' });
+            // Auto-play next song in playlist
+            playNextSong();
         });
 
         parentAudio.addEventListener('play', () => saveParentAudioState());
@@ -3095,7 +3242,7 @@
                 // Show control bar in paused state - user must click to play
                 updateControlBarUI(state.title, false);
                 // Show toast message
-                showAudioToast('Resuming the previously running song');
+                showAudioToast('Restore previous track playback when the play button is activated');
             }
         });
 
