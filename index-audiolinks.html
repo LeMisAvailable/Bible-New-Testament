@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Links Editor - Admin</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #1e3a5f;
+            text-align: center;
+            border-bottom: 3px solid #c9a227;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .warning {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .credentials-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #1e3a5f;
+        }
+        .credentials-section h3 {
+            margin-top: 0;
+            color: #1e3a5f;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e3a5f;
+        }
+        .form-group small {
+            color: #666;
+            font-size: 12px;
+        }
+        .btn-load {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-load:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30,58,95,0.4);
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
+        }
+        .btn-save:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .entries-section {
+            margin-top: 25px;
+        }
+        .entries-section h3 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #1e3a5f;
+        }
+        .entry-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            align-items: center;
+        }
+        .entry-row:hover {
+            background: #e9ecef;
+        }
+        .entry-key {
+            min-width: 350px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #1e3a5f;
+        }
+        .entry-value {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+        .entry-value input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .entry-value input:focus {
+            outline: none;
+            border-color: #1e3a5f;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+        .entry-count {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Audio Links Editor</h1>
+
+        <div class="warning">
+            ADMIN ONLY - This page updates audiolinks.json on GitHub
+        </div>
+
+        <div class="credentials-section">
+            <h3>GitHub Credentials</h3>
+            <div class="form-group">
+                <label>GitHub Personal Access Token</label>
+                <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                <small>Generate at: GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic)</small>
+            </div>
+            <div class="form-group">
+                <label>Repository Owner (username or org)</label>
+                <input type="text" id="repo-owner" placeholder="your-username">
+            </div>
+            <div class="form-group">
+                <label>Repository Name</label>
+                <input type="text" id="repo-name" placeholder="your-repo-name">
+            </div>
+            <div class="form-group">
+                <label>Branch</label>
+                <input type="text" id="repo-branch" value="main">
+            </div>
+            <div class="form-group">
+                <label>File Path in Repository</label>
+                <input type="text" id="file-path" value="setup/audiolinks.json">
+            </div>
+            <button class="btn-load" onclick="loadFromGitHub()">Load from GitHub</button>
+            <button class="btn-save" id="save-btn" onclick="saveToGitHub()" disabled>Save to GitHub</button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="entries-section">
+            <h3>Audio File Entries</h3>
+            <input type="text" class="search-box" id="search-box" placeholder="Search by chapter/spotlight name..." oninput="filterEntries()">
+            <div class="entry-count" id="entry-count"></div>
+            <div id="entries-container">
+                <p style="color: #666; text-align: center;">Click "Load from GitHub" to load entries</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioData = {};
+        let fileSha = '';
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        function getCredentials() {
+            return {
+                token: document.getElementById('github-token').value.trim(),
+                owner: document.getElementById('repo-owner').value.trim(),
+                repo: document.getElementById('repo-name').value.trim(),
+                branch: document.getElementById('repo-branch').value.trim(),
+                path: document.getElementById('file-path').value.trim()
+            };
+        }
+
+        async function loadFromGitHub() {
+            const creds = getCredentials();
+            if (!creds.token || !creds.owner || !creds.repo) {
+                showStatus('Please fill in all GitHub credentials', 'error');
+                return;
+            }
+
+            showStatus('Loading from GitHub...', 'loading');
+
+            try {
+                const url = `https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${creds.path}?ref=${creds.branch}`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${creds.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                fileSha = data.sha;
+
+                const content = atob(data.content);
+                audioData = JSON.parse(content);
+
+                renderEntries();
+                document.getElementById('save-btn').disabled = false;
+                showStatus(`Loaded ${Object.keys(audioData).length} entries successfully!`, 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function saveToGitHub() {
+            const creds = getCredentials();
+            if (!creds.token || !creds.owner || !creds.repo) {
+                showStatus('Please fill in all GitHub credentials', 'error');
+                return;
+            }
+
+            if (!fileSha) {
+                showStatus('Please load the file first', 'error');
+                return;
+            }
+
+            // Collect all values from inputs
+            const entries = document.querySelectorAll('.entry-row');
+            entries.forEach(row => {
+                const key = row.dataset.key;
+                const input1 = row.querySelector('.audio-file-1');
+                const input2 = row.querySelector('.audio-file-2');
+                if (input1 && input2) {
+                    audioData[key] = `${input1.value.trim()} ${input2.value.trim()}`;
+                }
+            });
+
+            showStatus('Saving to GitHub...', 'loading');
+
+            try {
+                const content = JSON.stringify(audioData, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+                const url = `https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${creds.path}`;
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${creds.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update audiolinks.json via Admin Editor',
+                        content: encodedContent,
+                        sha: fileSha,
+                        branch: creds.branch
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `GitHub API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                fileSha = result.content.sha;
+                showStatus('Saved successfully to GitHub!', 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        function renderEntries() {
+            const container = document.getElementById('entries-container');
+            const keys = Object.keys(audioData).sort();
+
+            let html = '';
+            keys.forEach(key => {
+                const value = audioData[key];
+                const files = value.split(' ');
+                const file1 = files[0] || '';
+                const file2 = files[1] || files[0] || '';
+
+                html += `
+                    <div class="entry-row" data-key="${key}">
+                        <div class="entry-key">${key}</div>
+                        <div class="entry-value">
+                            <input type="text" class="audio-file-1" value="${file1}" placeholder="Common Melody file">
+                            <input type="text" class="audio-file-2" value="${file2}" placeholder="Unique Melody file">
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('entry-count').textContent = `Total: ${keys.length} entries`;
+        }
+
+        function filterEntries() {
+            const searchTerm = document.getElementById('search-box').value.toLowerCase();
+            const rows = document.querySelectorAll('.entry-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const key = row.dataset.key.toLowerCase();
+                if (key.includes(searchTerm)) {
+                    row.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('entry-count').textContent = `Showing: ${visibleCount} of ${rows.length} entries`;
+        }
+    </script>
+</body>
+</html>
