@@ -14,6 +14,7 @@
         .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
         .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
         .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .scripture-ref { text-align: center; color: #8b0000; font-size: 0.95em; margin-bottom: 10px; font-weight: bold; }
         .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
         a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
         a.back-link:hover { text-decoration: underline; }
@@ -22,12 +23,18 @@
         .copy-btn:active { transform: translateY(0); }
         .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
         .suno-format { display: none; }
+        .carousel-item { display: none; }
+        .carousel-item.active { display: block; }
+        .intro { background: linear-gradient(135deg, #2d5016 0%, #4a7c23 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
     </style>
 </head>
 <body>
     <div class="song-container">
         <div class="video-container" style="text-align: center; margin-bottom: 20px;">
-            <iframe id="chapter-video" width="100%" height="250" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 500px; border-radius: 10px;"></iframe>
+            <div id="top-videos" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <iframe id="chapter-video-1" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+                <iframe id="chapter-video-2" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+            </div>
         </div>
 
         <script>
@@ -36,70 +43,83 @@
             fetch('videolinks.json')
                 .then(response => response.json())
                 .then(data => {
-                    const videoId = data[chapterName] || '9jo51nJrO0k';
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/' + videoId;
+                    const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
+                    // Top 2 videos
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/' + (videoIds[0] || '9jo51nJrO0k');
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/' + (videoIds[1] || videoIds[0] || '9jo51nJrO0k');
+                    // Bottom carousel
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = videoIds.map((id, i) =>
+                            '<div class="carousel-item' + (i === 0 ? ' active' : '') + '">' +
+                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>' +
+                            '</div>'
+                        ).join('');
+                        // Update video count
+                        document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        // Initialize carousel display
+                        document.addEventListener('DOMContentLoaded', () => { if (typeof showSlide === 'function') showSlide(0); });
+                        if (document.readyState === 'complete') { setTimeout(() => { if (typeof showSlide === 'function') showSlide(0); }, 100); }
+                    }
                 })
                 .catch(() => {
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    // Fallback carousel with 2 videos
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = '<div class="carousel-item active"><iframe width="100%" height="200" src="https://www.youtube.com/embed/9jo51nJrO0k" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div><div class="carousel-item"><iframe width="100%" height="200" src="https://www.youtube.com/embed/Hfm94aHAbYQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div>';
+                        document.getElementById('video-count').textContent = '1 / 2';
+                    }
                 });
         })();
         </script>
 
         <h1>No One Is Unclean</h1>
         <p class="subtitle">Acts Chapter 10 - Peter and Cornelius</p>
+        <p class="scripture-ref">Scripture: Acts 10</p>
         <p class="duration">Duration: ~2 minutes | Style: Devotional Ballad</p>
+
+        <h2>[Intro]</h2>
+        <div class="intro">
+We are dancing through the sacred Word,<br>
+Acts, chapter ten is heard,<br>
+Saul changed, now preaching Christ with might,<br>
+A vision comes to Peter's sight,<br>
+No one is unclean in God's light.
+        </div>
 
         <h2>[Verse 1]</h2>
         <div class="verse">
 Cornelius knelt in prayer each day,<br>
-A Roman centurion seeking the Way,<br>
-An angel appeared with words so clear,<br>
-"Your prayers have risen, God holds them dear."<br>
-Meanwhile Peter on a rooftop dreamed,<br>
-A vision of creatures, not what they seemed,<br>
-"Rise, kill, and eat," the voice commanded,<br>
-"But Lord, nothing unclean," Peter demanded.
+A Roman seeking for the Way,<br>
+An angel came with words so clear,<br>
+Your prayers have risen God holds dear,<br>
+Then Peter on a rooftop dreamed,<br>
+Of creatures not quite what they seemed.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-"What God has cleansed, call not unclean,"<br>
-The greatest truth that Peter had seen,<br>
-God shows no partiality or pride,<br>
-In every nation, He opens wide.<br>
-Whoever fears Him and does what's right,<br>
-Is welcomed into His glorious light,<br>
-The walls come down, the barriers fall,<br>
-The gospel of Jesus is for all.
+What God has cleansed call not unclean,<br>
+The greatest truth that he had seen,<br>
+God shows no favor or no pride,<br>
+In every nation opens wide.
         </div>
 
         <h2>[Verse 2]</h2>
         <div class="verse">
-Peter entered Cornelius's door,<br>
-Something Jews had never done before,<br>
-"I now understand," Peter confessed,<br>
-"God accepts all who seek His best."<br>
-While Peter preached, the Spirit fell,<br>
-On all who heard—they knew it well,<br>
-The Jewish believers stood amazed,<br>
-The Gentiles too now sang God's praise.
-        </div>
-
-        <h2>[Chorus]</h2>
-        <div class="chorus">
-"What God has cleansed, call not unclean,"<br>
-The greatest truth that Peter had seen,<br>
-God shows no partiality or pride,<br>
-In every nation, He opens wide.<br>
-Whoever fears Him and does what's right,<br>
-Is welcomed into His glorious light,<br>
-The walls come down, the barriers fall,<br>
-The gospel of Jesus is for all.
+Then Peter walked through that new door,<br>
+What Jews had never done before,<br>
+I understand now Peter said,<br>
+God accepts all who seek His bread,<br>
+While Peter preached the Spirit fell,<br>
+On all who heard and knew it well.
         </div>
 
         <h2>[Bridge]</h2>
         <div class="bridge">
-"Can anyone forbid the water?"<br>
+Can anyone forbid the water,<br>
 Peter cried to son and daughter,<br>
 They were baptized in Jesus' name,<br>
 The Gentiles and the Jews the same.
@@ -110,72 +130,50 @@ The Gentiles and the Jews the same.
 When fearful thoughts are intertwined,<br>
 You calm the storm inside my mind.<br>
 Lord, though I cannot see Your hand,<br>
-Your faithful heart I understand.
+I trust Your heart and all You've planned.
         </div>
 
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Amen.
+        </div>
+
+        <h2>[Pause]</h2>
+        <div class="narration" style="background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); color: #f0e6d3; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2;">
+[Spoken Word, Deep Male Baritone, Calm, Reverent]<br>
+Darkness abates, vanquished instantly;<br>
+Divine Light eternally embraces all now;<br>
+Drawing many into lasting, inner, nurturing, divine peace;<br>
+Always transforming, inspiring, lifting, mending, uniting, saving, illuminating, comforting, and liberating.
+        </div>
+
+        
         <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
 
-        <div class="suno-format" id="suno-text">
-(Devotional Ballad, Emotional, Orchestral, Reverent)
+        <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
 
-[Verse 1]
-Cornelius knelt in prayer each day,
-A Roman centurion seeking the Way,
-An angel appeared with words so clear,
-"Your prayers have risen, God holds them dear."
-Meanwhile Peter on a rooftop dreamed,
-A vision of creatures, not what they seemed,
-"Rise, kill, and eat," the voice commanded,
-"But Lord, nothing unclean," Peter demanded.
-
-[Chorus]
-"What God has cleansed, call not unclean,"
-The greatest truth that Peter had seen,
-God shows no partiality or pride,
-In every nation, He opens wide.
-Whoever fears Him and does what's right,
-Is welcomed into His glorious light,
-The walls come down, the barriers fall,
-The gospel of Jesus is for all.
-
-[Verse 2]
-Peter entered Cornelius's door,
-Something Jews had never done before,
-"I now understand," Peter confessed,
-"God accepts all who seek His best."
-While Peter preached, the Spirit fell,
-On all who heard—they knew it well,
-The Jewish believers stood amazed,
-The Gentiles too now sang God's praise.
-
-[Chorus]
-"What God has cleansed, call not unclean,"
-The greatest truth that Peter had seen,
-God shows no partiality or pride,
-In every nation, He opens wide.
-Whoever fears Him and does what's right,
-Is welcomed into His glorious light,
-The walls come down, the barriers fall,
-The gospel of Jesus is for all.
-
-[Bridge]
-"Can anyone forbid the water?"
-Peter cried to son and daughter,
-They were baptized in Jesus' name,
-The Gentiles and the Jews the same.
-
-[Outro]
-When fearful thoughts are intertwined,
-You calm the storm inside my mind.
-Lord, though I cannot see Your hand,
-Your faithful heart I understand.
-        </div>
-    </div>
-
-    <script>
+        <script>
         function copySunoFormat() {
-            const text = document.getElementById('suno-text').innerText.trim();
-            navigator.clipboard.writeText(text).then(() => {
+            let text = document.getElementById('suno-tags').textContent + '\n\n';
+            const sections = document.querySelectorAll('.song-container h2');
+            sections.forEach(h2 => {
+                const sectionName = h2.textContent.trim();
+                // Only process song sections (starting with [)
+                if (!sectionName.startsWith('[')) return;
+                
+                const nextEl = h2.nextElementSibling;
+                if (nextEl) {
+                    text += sectionName + '\n';
+                    let html = nextEl.innerHTML;
+                    html = html.replace(/<br\s*\/?>/gi, '\n');
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    let content = temp.textContent.trim();
+                    content = content.replace(/\n\s*\n/g, '\n');
+                    text += content + '\n\n';
+                }
+            });
+            navigator.clipboard.writeText(text.trim()).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 btn.textContent = 'Copied!';
                 btn.classList.add('copied');
@@ -186,5 +184,37 @@ Your faithful heart I understand.
             });
         }
     </script>
+
+        <!-- Video Carousel -->
+        <div class="video-carousel-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 15px;">Videos</h2>
+            <div id="carousel-wrapper" style="position: relative; max-width: 500px; margin: 0 auto;">
+                <div id="video-carousel" style="overflow: hidden;">
+                    <!-- Videos will be populated by JavaScript -->
+                </div>
+                <div id="carousel-controls" style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 10px;">
+                    <button onclick="prevVideo()" style="background: #8b0000; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">&#10094;</button>
+                    <span id="video-count" style="font-weight: bold; color: #666;">1 / 1</span>
+                    <button onclick="nextVideo()" style="background: #8b0000; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">&#10095;</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        let currentSlide = 0;
+        function showSlide(n) {
+            const items = document.querySelectorAll('.carousel-item');
+            if (items.length === 0) return;
+            currentSlide = (n + items.length) % items.length;
+            items.forEach((item, i) => {
+                item.style.display = i === currentSlide ? 'block' : 'none';
+            });
+            document.getElementById('video-count').textContent = (currentSlide + 1) + ' / ' + items.length;
+        }
+        function nextVideo() { showSlide(currentSlide + 1); }
+        function prevVideo() { showSlide(currentSlide - 1); }
+        </script>
+
+        
 </body>
 </html>

@@ -14,6 +14,7 @@
         .chorus { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2; }
         .bridge { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; line-height: 1.8; }
         .finale { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #d4af37; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; font-style: italic; }
+        .scripture-ref { text-align: center; color: #8b0000; font-size: 0.95em; margin-bottom: 10px; font-weight: bold; }
         .duration { text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 20px; }
         a.back-link { display: inline-block; margin-bottom: 20px; color: #8b0000; text-decoration: none; font-weight: bold; }
         a.back-link:hover { text-decoration: underline; }
@@ -22,12 +23,18 @@
         .copy-btn:active { transform: translateY(0); }
         .copied { background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); }
         .suno-format { display: none; }
+        .carousel-item { display: none; }
+        .carousel-item.active { display: block; }
+        .intro { background: linear-gradient(135deg, #2d5016 0%, #4a7c23 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; line-height: 2; }
     </style>
 </head>
 <body>
     <div class="song-container">
         <div class="video-container" style="text-align: center; margin-bottom: 20px;">
-            <iframe id="chapter-video" width="100%" height="250" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 500px; border-radius: 10px;"></iframe>
+            <div id="top-videos" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <iframe id="chapter-video-1" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+                <iframe id="chapter-video-2" width="48%" height="200" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 380px; border-radius: 10px;"></iframe>
+            </div>
         </div>
 
         <script>
@@ -36,61 +43,94 @@
             fetch('videolinks.json')
                 .then(response => response.json())
                 .then(data => {
-                    const videoId = data[chapterName] || '9jo51nJrO0k';
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/' + videoId;
+                    const videoIds = (data[chapterName] || '9jo51nJrO0k').split(' ');
+                    // Top 2 videos
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/' + (videoIds[0] || '9jo51nJrO0k');
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/' + (videoIds[1] || videoIds[0] || '9jo51nJrO0k');
+                    // Bottom carousel
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = videoIds.map((id, i) =>
+                            '<div class="carousel-item' + (i === 0 ? ' active' : '') + '">' +
+                            '<iframe width="100%" height="200" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>' +
+                            '</div>'
+                        ).join('');
+                        // Update video count
+                        document.getElementById('video-count').textContent = '1 / ' + videoIds.length;
+                        // Initialize carousel display
+                        document.addEventListener('DOMContentLoaded', () => { if (typeof showSlide === 'function') showSlide(0); });
+                        if (document.readyState === 'complete') { setTimeout(() => { if (typeof showSlide === 'function') showSlide(0); }, 100); }
+                    }
                 })
                 .catch(() => {
-                    document.getElementById('chapter-video').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-1').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    document.getElementById('chapter-video-2').src = 'https://www.youtube.com/embed/9jo51nJrO0k';
+                    // Fallback carousel with 2 videos
+                    const carousel = document.getElementById('video-carousel');
+                    if (carousel) {
+                        carousel.innerHTML = '<div class="carousel-item active"><iframe width="100%" height="200" src="https://www.youtube.com/embed/9jo51nJrO0k" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div><div class="carousel-item"><iframe width="100%" height="200" src="https://www.youtube.com/embed/Hfm94aHAbYQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe></div>';
+                        document.getElementById('video-count').textContent = '1 / 2';
+                    }
                 });
         })();
         </script>
 
         <h1>Press On</h1>
         <p class="subtitle">Philippians Chapter 3</p>
+        <p class="scripture-ref">Scripture: Philippians 3</p>
         <p class="duration">Duration: ~2 minutes | Style: Devotional Ballad</p>
+
+        <h2>[Intro]</h2>
+        <div class="intro">
+Prize awaits through sacred Word,<br>
+Philippians, chapter three is heard,<br>
+The mind of Christ brought life so new,<br>
+Now press on toward the prize in view,<br>
+Forgetting what's behind, break through.
+        </div>
 
         <h2>[Verse 1]</h2>
         <div class="verse">
-Finally, my brothers, rejoice in the Lord,<br>
-Beware of those who twist His word,<br>
-If anyone had reason to boast in the flesh,<br>
-I had more, but I count it all as less.<br>
-Circumcised on the eighth day, Israel's own,<br>
-A Hebrew of Hebrews, in zeal well known.
+My brothers, rejoice in the Lord,<br>
+Beware of those who twist the Word,<br>
+If any had reason for boast,<br>
+I had more, but count it lost,<br>
+The eighth day circumcised, his own,<br>
+A Hebrew zealous and well known.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-I press on toward the goal, the prize ahead,<br>
-Forgetting what's behind, looking instead,<br>
-The upward call of God in Christ my King,<br>
+I press on toward the prize ahead,<br>
+Forgetting what's behind instead,<br>
+The upward call of Christ my King,<br>
 To know Him is my everything.
         </div>
 
         <h2>[Verse 2]</h2>
         <div class="verse">
-Whatever was gain, I count as loss,<br>
-For the surpassing worth of knowing the cross,<br>
+Whatever was gain I count as loss,<br>
+For worth of knowing at the cross,<br>
 I count all things as rubbish now,<br>
-That I may gain Christ somehow.<br>
-Not having my own righteousness by law,<br>
-But faith in Christ, without a flaw.
+So that I may gain Christ somehow,<br>
+Not my own righteousness by law,<br>
+But faith in Christ without a flaw.
         </div>
 
         <h2>[Chorus]</h2>
         <div class="chorus">
-I press on toward the goal, the prize ahead,<br>
-Forgetting what's behind, looking instead,<br>
-The upward call of God in Christ my King,<br>
+I press on toward the prize ahead,<br>
+Forgetting what's behind instead,<br>
+The upward call of Christ my King,<br>
 To know Him is my everything.
         </div>
 
         <h2>[Bridge]</h2>
         <div class="bridge">
-Our citizenship is in heaven above,<br>
-Awaiting the Savior, the Lord of love,<br>
+Our home is in the heavens above,<br>
+Awaiting Savior, Lord of love,<br>
 He will transform our lowly frame,<br>
-To be like His glorious body, the same.
+Like His glorious body, the same.
         </div>
 
         <h2>[Outro]</h2>
@@ -98,60 +138,50 @@ To be like His glorious body, the same.
 When fearful thoughts are intertwined,<br>
 You calm the storm inside my mind.<br>
 Lord, though I cannot see Your hand,<br>
-Your faithful heart I understand.
+I trust Your heart and all You've planned.
         </div>
 
+        <h2>[Chorus]</h2>
+        <div class="chorus">
+Amen.
+        </div>
+
+        <h2>[Pause]</h2>
+        <div class="narration" style="background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); color: #f0e6d3; padding: 20px; border-radius: 10px; margin: 20px 0; font-style: italic; text-align: center; line-height: 2;">
+[Spoken Word, Deep Male Baritone, Calm, Reverent]<br>
+Darkness abates, vanquished instantly;<br>
+Divine Light eternally embraces all now;<br>
+Drawing many into lasting, inner, nurturing, divine peace;<br>
+Always transforming, inspiring, lifting, mending, uniting, saving, illuminating, comforting, and liberating.
+        </div>
+
+        
         <button class="copy-btn" onclick="copySunoFormat()">Copy</button>
 
-        <div class="suno-format" id="suno-text">
-(Devotional Ballad, Emotional, Orchestral, Reverent)
+        <span id="suno-tags" style="display:none;">(Dramatic Orchestral, Cinematic, Majestic, Church Choir Organ, Dramatic Music, Church Bells, Easy to sing along, Clear pronunciation, Devotional Ballad, Emotional, Orchestral, Reverent)</span>
 
-[Verse 1]
-Finally, my brothers, rejoice in the Lord,
-Beware of those who twist His word,
-If anyone had reason to boast in the flesh,
-I had more, but I count it all as less.
-Circumcised on the eighth day, Israel's own,
-A Hebrew of Hebrews, in zeal well known.
-
-[Chorus]
-I press on toward the goal, the prize ahead,
-Forgetting what's behind, looking instead,
-The upward call of God in Christ my King,
-To know Him is my everything.
-
-[Verse 2]
-Whatever was gain, I count as loss,
-For the surpassing worth of knowing the cross,
-I count all things as rubbish now,
-That I may gain Christ somehow.
-Not having my own righteousness by law,
-But faith in Christ, without a flaw.
-
-[Chorus]
-I press on toward the goal, the prize ahead,
-Forgetting what's behind, looking instead,
-The upward call of God in Christ my King,
-To know Him is my everything.
-
-[Bridge]
-Our citizenship is in heaven above,
-Awaiting the Savior, the Lord of love,
-He will transform our lowly frame,
-To be like His glorious body, the same.
-
-[Outro]
-When fearful thoughts are intertwined,
-You calm the storm inside my mind.
-Lord, though I cannot see Your hand,
-Your faithful heart I understand.
-        </div>
-    </div>
-
-    <script>
+        <script>
         function copySunoFormat() {
-            const text = document.getElementById('suno-text').innerText.trim();
-            navigator.clipboard.writeText(text).then(() => {
+            let text = document.getElementById('suno-tags').textContent + '\n\n';
+            const sections = document.querySelectorAll('.song-container h2');
+            sections.forEach(h2 => {
+                const sectionName = h2.textContent.trim();
+                // Only process song sections (starting with [)
+                if (!sectionName.startsWith('[')) return;
+                
+                const nextEl = h2.nextElementSibling;
+                if (nextEl) {
+                    text += sectionName + '\n';
+                    let html = nextEl.innerHTML;
+                    html = html.replace(/<br\s*\/?>/gi, '\n');
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    let content = temp.textContent.trim();
+                    content = content.replace(/\n\s*\n/g, '\n');
+                    text += content + '\n\n';
+                }
+            });
+            navigator.clipboard.writeText(text.trim()).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 btn.textContent = 'Copied!';
                 btn.classList.add('copied');
@@ -162,5 +192,37 @@ Your faithful heart I understand.
             });
         }
     </script>
+
+        <!-- Video Carousel -->
+        <div class="video-carousel-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 15px;">Videos</h2>
+            <div id="carousel-wrapper" style="position: relative; max-width: 500px; margin: 0 auto;">
+                <div id="video-carousel" style="overflow: hidden;">
+                    <!-- Videos will be populated by JavaScript -->
+                </div>
+                <div id="carousel-controls" style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 10px;">
+                    <button onclick="prevVideo()" style="background: #8b0000; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">&#10094;</button>
+                    <span id="video-count" style="font-weight: bold; color: #666;">1 / 1</span>
+                    <button onclick="nextVideo()" style="background: #8b0000; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">&#10095;</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        let currentSlide = 0;
+        function showSlide(n) {
+            const items = document.querySelectorAll('.carousel-item');
+            if (items.length === 0) return;
+            currentSlide = (n + items.length) % items.length;
+            items.forEach((item, i) => {
+                item.style.display = i === currentSlide ? 'block' : 'none';
+            });
+            document.getElementById('video-count').textContent = (currentSlide + 1) + ' / ' + items.length;
+        }
+        function nextVideo() { showSlide(currentSlide + 1); }
+        function prevVideo() { showSlide(currentSlide - 1); }
+        </script>
+
+        
 </body>
 </html>
