@@ -288,6 +288,25 @@
         }
 
         async function playAudio(index) {
+            // If same button clicked and audio is playing, toggle pause
+            if (currentPlaying === index && audioPlayer.src) {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    buttons[index].btn.classList.add('playing');
+                    buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                    buttons[index].text.textContent = 'Pause';
+                    updateControlBarUI(null, true);
+                } else {
+                    audioPlayer.pause();
+                    buttons[index].btn.classList.remove('playing');
+                    buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                    buttons[index].text.textContent = buttons[index].label;
+                    updateControlBarUI(null, false);
+                }
+                saveAudioState();
+                return;
+            }
+            
             // Gracefully stop any currently playing audio
             try {
                 audioPlayer.pause();

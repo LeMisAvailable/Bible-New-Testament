@@ -35,6 +35,101 @@
         .listen-btn-container { text-align: center; margin: 20px 0; }
         #audio-toast { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 9999; font-size: 0.9em; text-align: center; max-width: 90%; }
         #audio-player { display: none; }
+    
+        /* Persistent Audio Control Bar */
+        #audio-control-bar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            padding: 10px 15px;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        #audio-control-bar.visible { display: block; }
+        .acb-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .acb-top-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .acb-song-title {
+            flex: 1;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #c9a227;
+            font-weight: 600;
+        }
+        .acb-time {
+            font-size: 12px;
+            color: #aaa;
+            min-width: 90px;
+            text-align: right;
+        }
+        .acb-bottom-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .acb-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .acb-btn:hover { background: rgba(255,255,255,0.25); }
+        .acb-btn svg { width: 18px; height: 18px; fill: currentColor; }
+        .acb-btn.play-pause { background: #c9a227; width: 42px; height: 42px; }
+        .acb-btn.play-pause:hover { background: #d4b534; }
+        .acb-btn.play-pause svg { width: 22px; height: 22px; }
+        .acb-skip-text { font-size: 10px; font-weight: bold; }
+        .acb-seek {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .acb-seek::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #c9a227;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .acb-seek::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: #c9a227;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
     </style>
 </head>
 <body>
@@ -101,9 +196,11 @@
             <audio id="audio-player"></audio>
         </div>
         <div id="audio-toast">We will make this audio available soon</div>
-        <script>
-        let currentPlaying = -1;
+                <script>
+        // Persistent Audio Controller
         const audioPlayer = document.getElementById('audio-player');
+        let currentPlaying = -1;
+        
         const buttons = [
             { btn: document.getElementById('listen-btn-1'), icon: document.getElementById('play-icon-1'), text: document.getElementById('listen-text-1'), label: 'Listen Now (Common Melody)' },
             { btn: document.getElementById('listen-btn-2'), icon: document.getElementById('play-icon-2'), text: document.getElementById('listen-text-2'), label: 'Listen Now (Unique Melody)' }
@@ -113,33 +210,113 @@
             return window.location.pathname.split('/').pop().replace('.html', '');
         }
 
+        function formatTime(sec) {
+            if (isNaN(sec)) return '0:00';
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
         function showAudioToast() {
             const toast = document.getElementById('audio-toast');
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            if (toast) {
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            }
         }
 
         function resetButton(index) {
-            buttons[index].btn.classList.remove('playing');
-            buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-            buttons[index].text.textContent = buttons[index].label;
+            if (buttons[index] && buttons[index].btn) {
+                buttons[index].btn.classList.remove('playing');
+                buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                buttons[index].text.textContent = buttons[index].label;
+            }
         }
 
         function resetAllButtons() {
             buttons.forEach((b, i) => resetButton(i));
         }
 
+        function updateControlBarUI(title, isPlaying) {
+            const bar = document.getElementById('audio-control-bar');
+            const titleEl = document.getElementById('acb-title');
+            const iconEl = document.getElementById('acb-play-icon');
+            if (bar) bar.classList.add('visible');
+            if (titleEl && title) titleEl.textContent = title;
+            if (iconEl) iconEl.innerHTML = isPlaying ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+        }
+
+        function hideControlBar() {
+            const bar = document.getElementById('audio-control-bar');
+            if (bar) bar.classList.remove('visible');
+        }
+
+        function saveAudioState() {
+            const titleEl = document.getElementById('acb-title');
+            const state = {
+                src: audioPlayer.src,
+                currentTime: audioPlayer.currentTime,
+                isPlaying: !audioPlayer.paused,
+                isPaused: audioPlayer.paused && audioPlayer.currentTime > 0,
+                title: titleEl ? titleEl.textContent : '',
+                chapter: getChapterName(),
+                melodyIndex: currentPlaying
+            };
+            localStorage.setItem('audioState', JSON.stringify(state));
+        }
+
+        function restoreAudioState() {
+            const state = JSON.parse(localStorage.getItem('audioState') || '{}');
+            if (state.src && (state.isPlaying || state.isPaused)) {
+                audioPlayer.src = state.src;
+                audioPlayer.currentTime = state.currentTime || 0;
+                updateControlBarUI(state.title, state.isPlaying);
+                
+                if (state.isPlaying) {
+                    audioPlayer.play().catch(() => {});
+                }
+                
+                if (state.chapter === getChapterName() && state.melodyIndex >= 0) {
+                    currentPlaying = state.melodyIndex;
+                    if (buttons[currentPlaying] && buttons[currentPlaying].btn) {
+                        buttons[currentPlaying].btn.classList.add('playing');
+                        buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                        buttons[currentPlaying].text.textContent = 'Pause';
+                    }
+                }
+            }
+        }
+
         async function playAudio(index) {
-            if (currentPlaying === index) {
-                audioPlayer.pause();
-                currentPlaying = -1;
-                resetButton(index);
+            // If same button clicked and audio is playing, toggle pause
+            if (currentPlaying === index && audioPlayer.src) {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    buttons[index].btn.classList.add('playing');
+                    buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                    buttons[index].text.textContent = 'Pause';
+                    updateControlBarUI(null, true);
+                } else {
+                    audioPlayer.pause();
+                    buttons[index].btn.classList.remove('playing');
+                    buttons[index].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                    buttons[index].text.textContent = buttons[index].label;
+                    updateControlBarUI(null, false);
+                }
+                saveAudioState();
                 return;
             }
-            if (currentPlaying !== -1) {
+            
+            // Gracefully stop any currently playing audio
+            try {
                 audioPlayer.pause();
-                resetButton(currentPlaying);
-            }
+                audioPlayer.currentTime = 0;
+                audioPlayer.src = '';
+            } catch (e) {}
+            resetAllButtons();
+            currentPlaying = -1;
+            localStorage.removeItem('audioState');
+            
             try {
                 const response = await fetch('setup/audiolinks.json?t=' + Date.now());
                 const audiolinks = await response.json();
@@ -153,11 +330,17 @@
                         const checkResponse = await fetch(audioPath, { method: 'HEAD' });
                         if (checkResponse.ok) {
                             audioPlayer.src = audioPath;
+                            audioPlayer.currentTime = 0;
                             audioPlayer.play();
                             currentPlaying = index;
+                            
                             buttons[index].btn.classList.add('playing');
                             buttons[index].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
                             buttons[index].text.textContent = 'Pause';
+                            
+                            const melodyType = index === 0 ? 'Common' : 'Unique';
+                            updateControlBarUI(chapterName.replace(/-/g, ' ') + ' (' + melodyType + ')', true);
+                            saveAudioState();
                             return;
                         }
                     }
@@ -166,11 +349,82 @@
             } catch (e) { showAudioToast(); }
         }
 
-        audioPlayer.addEventListener('ended', () => {
-            if (currentPlaying !== -1) resetButton(currentPlaying);
+        function acbTogglePlay() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                updateControlBarUI(null, true);
+                if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
+                    buttons[currentPlaying].btn.classList.add('playing');
+                    buttons[currentPlaying].icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                    buttons[currentPlaying].text.textContent = 'Pause';
+                }
+            } else {
+                audioPlayer.pause();
+                updateControlBarUI(null, false);
+                if (currentPlaying >= 0 && buttons[currentPlaying] && buttons[currentPlaying].btn) {
+                    buttons[currentPlaying].btn.classList.remove('playing');
+                    buttons[currentPlaying].icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                    buttons[currentPlaying].text.textContent = buttons[currentPlaying].label;
+                }
+            }
+            saveAudioState();
+        }
+
+        function acbStop() {
+            try {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+                audioPlayer.removeAttribute('src');
+                audioPlayer.load();
+            } catch (e) {}
+            hideControlBar();
+            resetAllButtons();
             currentPlaying = -1;
+            localStorage.removeItem('audioState');
+        }
+
+        function acbSkip(seconds) {
+            audioPlayer.currentTime = Math.max(0, Math.min(audioPlayer.duration || 0, audioPlayer.currentTime + seconds));
+            saveAudioState();
+        }
+
+        function acbSeek(value) {
+            if (audioPlayer.duration) {
+                audioPlayer.currentTime = (value / 100) * audioPlayer.duration;
+                saveAudioState();
+            }
+        }
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            const cur = document.getElementById('acb-current');
+            const seek = document.getElementById('acb-seek');
+            if (cur) cur.textContent = formatTime(audioPlayer.currentTime);
+            if (seek && audioPlayer.duration) {
+                seek.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            }
         });
+
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            const dur = document.getElementById('acb-duration');
+            if (dur) dur.textContent = formatTime(audioPlayer.duration);
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            resetAllButtons();
+            currentPlaying = -1;
+            updateControlBarUI(null, false);
+            localStorage.removeItem('audioState');
+        });
+
+        audioPlayer.addEventListener('play', () => saveAudioState());
+        audioPlayer.addEventListener('pause', () => saveAudioState());
+
+        window.addEventListener('beforeunload', saveAudioState);
+
+        document.addEventListener('DOMContentLoaded', restoreAudioState);
+        if (document.readyState === 'complete') restoreAudioState();
         </script>
+
 
 
 
@@ -325,5 +579,27 @@ Always transforming, inspiring, lifting, mending, uniting, saving, illuminating,
     
     <!-- Additional body spacer for iOS safe area -->
     <div style="height: 80px;"></div>
+
+    <!-- Persistent Audio Control Bar -->
+    <div id="audio-control-bar">
+        <div class="acb-container">
+            <div class="acb-top-row">
+                <span class="acb-song-title" id="acb-title">No song playing</span>
+                <span class="acb-time"><span id="acb-current">0:00</span> / <span id="acb-duration">0:00</span></span>
+            </div>
+            <div class="acb-bottom-row">
+                <button class="acb-btn" onclick="acbSkip(-10)" title="Back 10s"><span class="acb-skip-text">-10</span></button>
+                <button class="acb-btn play-pause" id="acb-play-btn" onclick="acbTogglePlay()" title="Play/Pause">
+                    <svg viewBox="0 0 24 24" id="acb-play-icon"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button class="acb-btn" onclick="acbSkip(10)" title="Forward 10s"><span class="acb-skip-text">+10</span></button>
+                <input type="range" class="acb-seek" id="acb-seek" value="0" min="0" max="100" oninput="acbSeek(this.value)">
+                <button class="acb-btn" onclick="acbStop()" title="Stop">
+                    <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
